@@ -41,7 +41,7 @@ def get_recent_two_tradingdates():
     alldays = pro.trade_cal()
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
     today = datetime.datetime.today().strftime('%Y%m%d')
-    #获取最近利康哥交易日
+    # 获取最近利康哥交易日
     last_day = today
     last_second_day = ""
     while last_day not in tradingdays["cal_date"].values:
@@ -54,8 +54,8 @@ def get_recent_two_tradingdates():
 
 
 def main():
+    # 获取最近2个交易日
     days = get_recent_two_tradingdates()
-    print(days)
     increase_stocks(days[0], days[1])
 
 
