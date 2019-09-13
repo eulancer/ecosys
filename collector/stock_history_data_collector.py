@@ -27,11 +27,12 @@ def get_stock_hist_data(code, start, end):
 
 def main():
     stock_list = pd.DataFrame(get_stock_list())
-    start = '20010101'
-    end = time.strftime('%Y%m%d', time.localtime())
-    print(end)
+    start = '19910101'
+    end = '20010101'
     for index, row in stock_list.iterrows():
+        #if index > 2509:
         get_stock_hist_data(row["ts_code"], start, end)
+        print(index)
         time.sleep(0.005)
     print("下载结束")
 

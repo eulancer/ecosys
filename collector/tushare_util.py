@@ -6,7 +6,7 @@ def get_pro_client():
     return tushare.pro_api(config.tushare_token)
 
 
-def gen_ts_code(stock_number):
+def get_ts_code(stock_number):
     for i in config.ts_code_pattern:
         for n in i.get('pattern'):
             if stock_number.startswith(n):
