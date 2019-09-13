@@ -1,5 +1,5 @@
 from sklearn import svm
-from analysis import DC
+from quant import DC
 
 if __name__ == '__main__':
     stock = '002049.SZ'

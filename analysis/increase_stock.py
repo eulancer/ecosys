@@ -1,16 +1,23 @@
 import datetime
-
 import pandas as pd
-from tushare_util import get_pro_client
+import timedelta
 
 import config
+from collector.tushare_util import get_pro_client
 
 
-def increase_stocks(currentday, lastday):
+# 获取上涨放量股票
+def increase_stocks(current_day, last_day):
     pro = get_pro_client()
     # 获取当日股票信息
-    df1 = pro.daily(trade_date=currentday, start_date=currentday, end_date=currentday)
-    dft = pro.daily(trade_date=lastday, start_date=lastday, end_date=lastday)
+    df1 = pro.daily(trade_date=current_day, start_date=current_day, end_date=current_day)
+    dft = pro.daily(trade_date=last_day, start_date=last_day, end_date=last_day)
+    # 获取港股数据
+    # df1h = pro.hk_daily(trade_date=current_day)
+    # dfth = pro.hk_daily(trade_date=last_day)
+    # df1 = df1.append(df1h)
+    # dft = dft.append(dfth)
+    print(df1)
     # stock列表
     stockList = pd.DataFrame(columns=df1.columns)
     stockList["rate"] = None
@@ -35,17 +42,25 @@ def increase_stocks(currentday, lastday):
                      chunksize=1000)
 
 
+# 获取交易日
 def get_recent_two_tradingdates():
     pro = get_pro_client()
     # 获取交易日
     alldays = pro.trade_cal()
+    # print(alldays)
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
     today = datetime.datetime.today().strftime('%Y%m%d')
+    print(today)
     # 获取最近利康哥交易日
     last_day = today
     last_second_day = ""
+    print(last_day not in tradingdays["cal_date"].values)
+    i = 0
     while last_day not in tradingdays["cal_date"].values:
-        last_day = last_day - 1
+        i = +1
+        last_day = datetime.date.today() + datetime.timedelta(-i)
+        last_day = last_day.strftime('%Y%m%d')
+    print(last_day)
     tradingdays_list = tradingdays["cal_date"].tolist()
     last_day_index = tradingdays_list.index(last_day)
     last_second_day = tradingdays_list[int(last_day_index) - 1]
@@ -56,6 +71,7 @@ def get_recent_two_tradingdates():
 def main():
     # 获取最近2个交易日
     days = get_recent_two_tradingdates()
+    print(days)
     increase_stocks(days[0], days[1])
 
 
