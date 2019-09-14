@@ -2,6 +2,7 @@ import tushare
 import config
 
 
+# tushare连接方式
 def get_pro_client():
     return tushare.pro_api(config.tushare_token)
 

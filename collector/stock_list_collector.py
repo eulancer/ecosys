@@ -8,6 +8,7 @@ def get_stock_basic():
     pro = get_pro_client()
     # 获取股票信息
     data = pro.stock_basic(exchange='', list_status='L')
+    print(data)
     data = data.fillna('NAN')
     df = pd.DataFrame(data)
     # 存入数据
