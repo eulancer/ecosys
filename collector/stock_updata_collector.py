@@ -10,11 +10,11 @@ def update_stocks_data(last_day):
     # 获取当日股票信息
     df = pro.daily(trade_date=last_day, start_date=last_day, end_date=last_day)
     # 存入数据
-    df.to_sql(name="stock_his_data", con=config.engine, schema="test", index=True, if_exists='append',
+    df.to_sql(name="stock_his_data", con=config.engine, schema=config.db, index=True, if_exists='append',
               chunksize=1000)
     up_data = {"up_date": last_day}
     df_update = pd.DataFrame(up_data)
-    df_update.to_sql(name="stock_history_update", con=config.engine, schema="test", index=True, if_exists='append')
+    df_update.to_sql(name="stock_history_update", con=config.engine, schema=config.db, index=True, if_exists='append')
 
 
 # 获取交易日

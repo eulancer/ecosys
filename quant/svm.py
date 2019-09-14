@@ -8,6 +8,7 @@ def svm_cal(stock, start_date, end_date):
     train = dc.data_train
     target = dc.data_target
     test_case = [dc.test_case]
+
     model = svm.SVC()  # 建模
     model.fit(train, target)  # 训练
     ans2 = model.predict(test_case)  # 预测

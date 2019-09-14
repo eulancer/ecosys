@@ -12,8 +12,8 @@ def get_stock_basic():
     data = data.fillna('NAN')
     df = pd.DataFrame(data)
     # 存入数据
-    df.to_sql(name="stock_basic", con=config.engine, schema="test", index=True, if_exists='replace',
-              chunksize=1000)
+    df.to_sql(name="stock_basic", con=config.engine, schema=config.db, index=True, if_exists='replace',
+              chunksize=1000, encoding='utf-8')
     print("股票基本信息已存入")
 
 
