@@ -1,7 +1,4 @@
 import datetime
-import pandas as pd
-import timedelta
-
 import config
 from collector.tushare_util import get_pro_client
 
@@ -24,18 +21,25 @@ def get_recent_tradingdate():
     # print(alldays)
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
     today = datetime.datetime.today().strftime('%Y%m%d')
+    last_day = today
+    # 如果当天不是交易日，时间往前提
     i = 0
     while last_day not in tradingdays["cal_date"].values:
         i = +1
+        last_day = datetime.datetime.today() - datetime.timedelta(days=-i)
         last_day = last_day.strftime('%Y%m%d')
     return last_day
 
 
+def check_the_update(last_day):
+    print("shuju")
+
+
 def main():
     # 获取最近2个交易日
-    last_day =get_recent_tradingdate
+    last_day = get_recent_tradingdate()
     print(last_day)
-    update_stocks_data(last_day)
+    # update_stocks_data(last_day)
 
 
 if __name__ == "__main__":

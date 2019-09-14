@@ -1,21 +1,30 @@
-import tushare as ts
-from sqlalchemy import create_engine
+import config
+from collector.tushare_util import get_pro_client
 import pandas as pd
 
-ts.set_token('1b61e563de958fab5733a11103409224a50673ca4857b20b1669b016')
-pro = ts.pro_api()
 
-connect_info = 'mysql+pymysql://root@127.0.0.1:3306/test?charset=utf8'
-engine = create_engine(connect_info)  # use sqlalchemy to build link-engine
+# 获取股票基本信息
+def get_stock_basic():
+    pro = get_pro_client()
+    # 获取股票信息
+    data = pro.stock_basic(exchange='', list_status='L')
+    data = data.fillna('NAN')
+    df = pd.DataFrame(data)
+    # 存入数据
+    df.to_sql(name="stock_basic", con=config.engine, schema="test", index=True, if_exists='replace',
+              chunksize=1000)
+    print("股票基本信息已存入")
 
-# 存储取所有股票信息
-data = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,list_date')
-ds = pd.DataFrame(data)
-ds.to_sql(name="stock_basic", con=engine, schema="test", index=True, if_exists='replace', chunksize=1000)
 
+def main():
+    get_stock_basic()
+
+
+if __name__ == '__main__':
+    main()
+
+"""
 # 读取股票嘻嘻
 sql = "SELECT * FROM stock_basic "  # SQL query
 df = pd.read_sql(sql=sql, con=engine)  # read data to DataFrame 'df'
-
-if __name__ == '__main__':
-    print(df)
+"""
