@@ -1,10 +1,10 @@
 from sklearn import svm
-from quant import svm_data_collector
+from quant import DC
 
-
+# 机器学习暂时找不到应用场景
 def svm_cal(stock, start_date, end_date):
     stock = stock
-    dc = svm_data_collector.data_collect(stock, start_date, end_date)
+    dc = DC.data_collect(stock, start_date, end_date)
     train = dc.data_train
     target = dc.data_target
     test_case = [dc.test_case]

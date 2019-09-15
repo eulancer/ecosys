@@ -38,7 +38,7 @@ def increase_stocks(current_day, last_day):
     # 导出为csv
     stockList.to_csv("std.csv", encoding="gbk", index=False)
     # 存入数据
-    stockList.to_sql(name="stock_history", con=config.engine, schema=config.tushare_token, index=True, if_exists='append',
+    stockList.to_sql(name="stock_history", con=config.engine, schema=config.db, index=True, if_exists='append',
                      chunksize=1000)
 
 

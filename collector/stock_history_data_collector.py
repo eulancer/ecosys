@@ -1,7 +1,7 @@
 import time
 import tushare
 import pandas as pd
-from tushare_util import get_pro_client
+from collector.tushare_util import get_pro_client
 
 import config
 
@@ -20,20 +20,20 @@ def get_stock_hist_data(code, start, end):
     end = end
     data = pro.daily(ts_code=code, start_date=start, end_date=end)
     stock_data = pd.DataFrame(data)
-    stock_data.to_sql(name="stock_his_data", con=config.engine, schema="test", index=True, if_exists='append',
+    stock_data.to_sql(name="stock_his_data", con=config.engine, schema=config.db, index=True, if_exists='append',
                       chunksize=1000)
     print(code + "已存入mysql")
 
 
 def main():
     stock_list = pd.DataFrame(get_stock_list())
-    start = '19910101'
-    end = '20010101'
+    start = '2010101'
+    end = '20191001'
     for index, row in stock_list.iterrows():
-        #if index > 2509:
+        #if index > 1744:
         get_stock_hist_data(row["ts_code"], start, end)
         print(index)
-        time.sleep(0.005)
+        time.sleep(0.001)
     print("下载结束")
 
 

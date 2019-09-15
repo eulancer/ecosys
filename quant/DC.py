@@ -3,6 +3,7 @@ import numpy as np
 import pymysql
 
 
+# 机器学习暂时找不到应用场景
 class data_collect(object):
 
     def __init__(self, in_code, start_dt, end_dt):
