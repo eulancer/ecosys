@@ -1,6 +1,7 @@
 import pymysql
 import config
 
+# 封装函数，用于在回测过程中，每日更新资产表中相关数据。
 # 更新仓位数据，获取最新股票数据，更新价格及仓位
 def cap_update_daily(state_dt):
     para_norisk = (1.0 + 0.04 / 365)

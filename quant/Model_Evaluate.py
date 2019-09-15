@@ -7,6 +7,10 @@ import config
 from collector.tushare_util import get_pro_client
 
 
+# 【模型评估】通过回测+推进式建模的方式对模型进行评估，主要计算查准率Precision，查全率Recall，F1分值，并存入结果表。
+# para_window 回测窗口长度
+# para_dc_window 数据预处理所需的时间窗长度
+
 def model_eva(stock, state_dt, para_window, para_dc_window):
     # 建立数据库连接，设置tushare token
     db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
@@ -33,19 +37,22 @@ def model_eva(stock, state_dt, para_window, para_dc_window):
     for d in range(len(model_test_date_seq)):
         model_test_new_start = (datetime.datetime.strptime(model_test_date_seq[d], '%Y%m%d') - datetime.timedelta(
             days=para_dc_window)).strftime('%Y%m%d')
+        print("model_test_new_start" + str(model_test_new_start))
         model_test_new_end = model_test_date_seq[d]
+        print("model_test_new_end" + str(model_test_new_end))
         try:
             dc = DC.data_collect(stock, model_test_new_start, model_test_new_end)
-            print("DC成功了")
+            print("set(dc.data_target)"+str(set(dc.data_target)))
             if len(set(dc.data_target)) <= 1:
                 continue
         except Exception as exp:
-            print("DC Errrrr")
+            print("DC 没有数据，就没法更新ev_mid表")
             return_flag = 1
             break
         train = dc.data_train
         target = dc.data_target
         test_case = [dc.test_case]
+        #print("train"+str(train))
 
         model = svm.SVC()  # 建模
         model.fit(train, target)  # 训练
@@ -69,7 +76,7 @@ def model_eva(stock, state_dt, para_window, para_dc_window):
             if len(done_set2) <= 1:
                 break
             resu = 0
-            if float(done_set2[1][3]) / float(done_set2[0][3]) > 1.00:
+            if float(done_set2[1][6]) / float(done_set2[0][6]) > 1.00:
                 resu = 1
             sql_update = "update model_ev_mid w set w.resu_real = '%.2f' where w.trade_date = '%s' and w.ts_code = '%s'" % (
                 resu, model_test_date_seq[i], stock)
