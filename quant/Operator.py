@@ -9,6 +9,8 @@ def buy(stock_code, opdate, buy_money):
     db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
     cursor = db.cursor()
     deal_buy = Deal.Deal(opdate)
+
+
     # 后买入
     if deal_buy.cur_money_rest + 1 >= buy_money:
         sql_buy = "select * from stock_info a where a.trade_date = '%s' and a.ts_code = '%s'" % (opdate, stock_code)

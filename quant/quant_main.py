@@ -47,15 +47,16 @@ if __name__ == '__main__':
     year = 2019
     date_seq_start = str(year) + '0901'
     date_seq_end = str(year) + '0912'
-
-    stock_pool = ['603912.SH', '300666.SZ', '300618.SZ', '002049.SZ', '300672.SZ']
-    # print(stock_pool)
     """
-    tock_pool_sql = "select ts_code from stock_history"
+    # 自定义股票池
+    stock_pool = ['603912.SH', '300666.SZ', '300618.SZ', '002049.SZ', '300672.SZ']
+    """
+    # 采用数据库中股票池
+    stock_pool_sql = "select ts_code from stock_history"
     cursor.execute(stock_pool_sql)
     stock_pool_data = cursor.fetchall()
     stock_pool = [i[0] for i in stock_pool_data]
-    """
+
     print(stock_pool)
 
     # 先清空之前的测试记录,并创建中间表
@@ -70,9 +71,7 @@ if __name__ == '__main__':
     sql_wash4 = 'truncate table stock_info'
     cursor.execute(sql_wash4)
     db.commit()
-
-    print("中间表已清空")
-
+    print("my_capital,my_stock_pool,stock_info中间表已清空")
     in_str = '('
     for x in range(len(stock_pool)):
         if x != len(stock_pool) - 1:
@@ -82,7 +81,7 @@ if __name__ == '__main__':
     sql_insert = "insert into stock_info(select * from stock_his_data a where a.ts_code in %s)" % (in_str)
     cursor.execute(sql_insert)
     db.commit()
-    print("历史数据已筛选")
+    print("已剔除行情表中的冗余数据")
 
     # 建回测时间序列
     back_test_date_start = (datetime.datetime.strptime(date_seq_start, '%Y%m%d')).strftime('%Y%m%d')
@@ -94,7 +93,7 @@ if __name__ == '__main__':
     date_temp = list(df.iloc[:, 1])
     date_seq = [(datetime.datetime.strptime(x, "%Y%m%d")).strftime('%Y%m%d') for x in date_temp]
     print(date_seq)
-    print("时间序列已建立，开始模拟")
+    print("回测时间序列已建立，开始模拟")
 
     # 开始模拟交易
     index = 1
@@ -123,13 +122,14 @@ if __name__ == '__main__':
         else:
             Filter.filter_main([], date_seq[i], date_seq[i - 1], [])
             cap_update_ans = cap_update_daily(date_seq[i])
-        print('Runnig to Date :  ' + str(date_seq[i]))
-    print('ALL FINISHED!!')
+        print('Runnigs to Date :  ' + str(date_seq[i]))
+    print('回测 ALL FINISHED!!')
 
     sharp, c_std = get_sharp_rate()
     print('Sharp Rate : ' + str(sharp))
     print('Risk Factor : ' + str(c_std))
 
+    # 获取回测的数据
     sql_show_btc = "select * from stock_index a where a.ts_code = '000001.SH' and a.trade_date >= '%s' and a.trade_date <= '%s' order by a.trade_date asc" % (
         date_seq_start, date_seq_end)
     cursor.execute(sql_show_btc)
@@ -143,7 +143,6 @@ if __name__ == '__main__':
 
     for a in range(len(btc_x)):
         dict_anti_x[btc_x[a]] = done_set_show_btc[a][1]
-
         dict_x[done_set_show_btc[a][1]] = btc_x[a]
         print("btc_x[a]" + str(btc_x[a]))
         print(" dict_x[done_set_show_btc[a][0]] " + str(dict_x[done_set_show_btc[a][1]]))
@@ -155,7 +154,7 @@ if __name__ == '__main__':
     cursor.execute(sql_show_profit)
     done_set_show_profit = cursor.fetchall()
 
-    #profit_x = [x[1] for x in done_set_show_profit]
+    # profit_x = [x[1] for x in done_set_show_profit]
     profit_x = [dict_x[x[1]] for x in done_set_show_profit]
     print("profit_x " + str(profit_x))
     profit_y = [x[0] / done_set_show_profit[0][0] for x in done_set_show_profit]
@@ -173,8 +172,6 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(20, 12))
     ax = fig.add_subplot(111)
     ax.xaxis.set_major_formatter(FuncFormatter(c_fnx))
-
-    # plt.plot(btc_x, btc_y, color='blue')
 
     plt.plot(btc_x, btc_y, color='blue')
     print("btc_x" + str(btc_x))
