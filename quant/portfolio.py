@@ -2,13 +2,15 @@ import numpy as np
 import datetime
 import pymysql
 import copy
+
+import config
 from collector.tushare_util import get_pro_client
 
 
 # 返回的resu中 特征值按由小到大排列，对应的是其特征向量
 def get_portfolio(stock_list, state_dt, para_window):
     # 建数据库连接，设置Tushare的token
-    db = pymysql.connect(host='127.0.0.1', user='root', passwd='', db='test', charset='utf8')
+    db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
     cursor = db.cursor()
     pro = get_pro_client()
 
@@ -19,6 +21,7 @@ def get_portfolio(stock_list, state_dt, para_window):
             datetime.datetime.strptime(state_dt, '%Y%m%d') - datetime.timedelta(days=para_window)).strftime(
         '%Y%m%d')
     model_test_date_end = (datetime.datetime.strptime(state_dt, "%Y%m%d")).strftime('%Y%m%d')
+    # 获取交易日历
     df = pro.trade_cal(exchange_id='', is_open=1, start_date=model_test_date_start, end_date=model_test_date_end)
     date_temp = list(df.iloc[:, 1])
     model_test_date_seq = [(datetime.datetime.strptime(x, "%Y%m%d")).strftime('%Y%m%d') for x in date_temp]
@@ -32,6 +35,7 @@ def get_portfolio(stock_list, state_dt, para_window):
                 portfilio[j], model_test_date_seq[i], model_test_date_seq[i + 4])
             cursor.execute(sql_select)
             done_set = cursor.fetchall()
+            #print("投资整合"+str(done_set))
             db.commit()
             temp = [x[3] for x in done_set]
             base_price = 0.00
@@ -81,7 +85,7 @@ def get_portfolio(stock_list, state_dt, para_window):
 
         con_temp.append(sharp)
         resu.append(con_temp)
-
+    print("poerfoli返回的值"+str(resu))
     return resu
 
 

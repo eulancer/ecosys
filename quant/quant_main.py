@@ -11,6 +11,7 @@ from collector.tushare_util import get_pro_client
 
 
 def get_sharp_rate():
+    # 数据库连接
     db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
     cursor = db.cursor()
 
@@ -20,7 +21,6 @@ def get_sharp_rate():
     db.commit()
 
     cap_list = [float(x[0]) for x in done_exp]
-
     return_list = []
     base_cap = float(done_exp[0][0])
 
@@ -44,9 +44,9 @@ if __name__ == '__main__':
     db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
     cursor = db.cursor()
     pro = get_pro_client()
-    year = 2018
+    year = 2019
     date_seq_start = str(year) + '0301'
-    date_seq_end = str(year) + '0401'
+    date_seq_end = str(year) + '0912'
     stock_pool = ['603912.SH', '300666.SZ', '300618.SZ', '002049.SZ', '300672.SZ']
 
     # 先清空之前的测试记录,并创建中间表
@@ -74,10 +74,13 @@ if __name__ == '__main__':
 
     # 建回测时间序列
     back_test_date_start = (datetime.datetime.strptime(date_seq_start, '%Y%m%d')).strftime('%Y%m%d')
+    print("回测开始时间" + back_test_date_start)
     back_test_date_end = (datetime.datetime.strptime(date_seq_end, "%Y%m%d")).strftime('%Y%m%d')
+    print("回测结束始时间" + back_test_date_end)
+    # 获取交易日历
     df = pro.trade_cal(exchange_id='', is_open=1, start_date=back_test_date_start, end_date=back_test_date_end)
     date_temp = list(df.iloc[:, 1])
-    date_seq = [(datetime.datetime.strptime(x, "%Y%m%d")).strftime('%Y-%m-%d') for x in date_temp]
+    date_seq = [(datetime.datetime.strptime(x, "%Y%m%d")).strftime('%Y%m%d') for x in date_temp]
     print(date_seq)
 
     # 开始模拟交易
@@ -114,7 +117,7 @@ if __name__ == '__main__':
     print('Sharp Rate : ' + str(sharp))
     print('Risk Factor : ' + str(c_std))
 
-    sql_show_btc = "select * from stock_index a where a.stock_code = 'SH' and a.state_dt >= '%s' and a.state_dt <= '%s' order by state_dt asc" % (
+    sql_show_btc = "select * from stock_index a where a.ts_code = 'SH' and a.trade_date >= '%s' and a.trade_date <= '%s' order by trade_date asc" % (
         date_seq_start, date_seq_end)
     cursor.execute(sql_show_btc)
     done_set_show_btc = cursor.fetchall()
@@ -128,9 +131,11 @@ if __name__ == '__main__':
         dict_x[done_set_show_btc[a][0]] = btc_x[a]
 
     # sql_show_profit = "select * from my_capital order by state_dt asc"
-    sql_show_profit = "select max(a.capital),a.state_dt from my_capital a where a.state_dt is not null group by a.state_dt order by a.state_dt asc"
+
+    sql_show_profit = "select max(a.capital),a.trade_date from my_capital a where a.trade_date is not null group by a.trade_date order by a.trade_date asc"
     cursor.execute(sql_show_profit)
     done_set_show_profit = cursor.fetchall()
+    print(done_set_show_profit)
     profit_x = [dict_x[x[1]] for x in done_set_show_profit]
     profit_y = [x[0] / done_set_show_profit[0][0] for x in done_set_show_profit]
 

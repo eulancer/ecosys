@@ -33,10 +33,10 @@ def cap_update_daily(state_dt):
 
     db.commit()
     new_cash_cap = float(done_cap[-1][2]) * para_norisk
-    print("看不懂的数"+done_cap[-1][2])
+    print("看不懂的数"+str(done_cap[-1][2]))
     print(new_cash_cap)
     new_total_cap = new_cash_cap + new_lock_cap
-    sql_insert = "insert into my_capital(capital,money_lock,money_rest,bz,state_dt)values('%.2f','%.2f','%.2f','%s','%s')" % (
+    sql_insert = "insert into my_capital(capital,money_lock,money_rest,bz,trade_date)values('%.2f','%.2f','%.2f','%s','%s')" % (
         new_total_cap, new_lock_cap, new_cash_cap, str('Daily_Update'), state_dt)
     cursor.execute(sql_insert)
     db.commit()

@@ -15,7 +15,6 @@ def svm_cal(stock, start_date, end_date):
     # 输出对2018-03-02的涨跌预测，1表示涨，0表示不涨。
     print(ans2[0])
 
-
 def main():
     # 模拟数据
     stock = "600548.SH"
