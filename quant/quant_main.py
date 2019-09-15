@@ -45,9 +45,18 @@ if __name__ == '__main__':
     cursor = db.cursor()
     pro = get_pro_client()
     year = 2019
-    date_seq_start = str(year) + '0301'
+    date_seq_start = str(year) + '0901'
     date_seq_end = str(year) + '0912'
+
     stock_pool = ['603912.SH', '300666.SZ', '300618.SZ', '002049.SZ', '300672.SZ']
+    # print(stock_pool)
+    """
+    tock_pool_sql = "select ts_code from stock_history"
+    cursor.execute(stock_pool_sql)
+    stock_pool_data = cursor.fetchall()
+    stock_pool = [i[0] for i in stock_pool_data]
+    """
+    print(stock_pool)
 
     # 先清空之前的测试记录,并创建中间表
     sql_wash1 = 'delete from my_capital where seq != 1'
@@ -62,6 +71,8 @@ if __name__ == '__main__':
     cursor.execute(sql_wash4)
     db.commit()
 
+    print("中间表已清空")
+
     in_str = '('
     for x in range(len(stock_pool)):
         if x != len(stock_pool) - 1:
@@ -71,6 +82,7 @@ if __name__ == '__main__':
     sql_insert = "insert into stock_info(select * from stock_his_data a where a.ts_code in %s)" % (in_str)
     cursor.execute(sql_insert)
     db.commit()
+    print("历史数据已筛选")
 
     # 建回测时间序列
     back_test_date_start = (datetime.datetime.strptime(date_seq_start, '%Y%m%d')).strftime('%Y%m%d')
@@ -82,6 +94,7 @@ if __name__ == '__main__':
     date_temp = list(df.iloc[:, 1])
     date_seq = [(datetime.datetime.strptime(x, "%Y%m%d")).strftime('%Y%m%d') for x in date_temp]
     print(date_seq)
+    print("时间序列已建立，开始模拟")
 
     # 开始模拟交易
     index = 1
@@ -117,27 +130,36 @@ if __name__ == '__main__':
     print('Sharp Rate : ' + str(sharp))
     print('Risk Factor : ' + str(c_std))
 
-    sql_show_btc = "select * from stock_index a where a.ts_code = 'SH' and a.trade_date >= '%s' and a.trade_date <= '%s' order by trade_date asc" % (
+    sql_show_btc = "select * from stock_index a where a.ts_code = '000001.SH' and a.trade_date >= '%s' and a.trade_date <= '%s' order by a.trade_date asc" % (
         date_seq_start, date_seq_end)
     cursor.execute(sql_show_btc)
     done_set_show_btc = cursor.fetchall()
+    print("done_set_show_btc" + str(done_set_show_btc))
     # btc_x = [x[0] for x in done_set_show_btc]
     btc_x = list(range(len(done_set_show_btc)))
-    btc_y = [x[3] / done_set_show_btc[0][3] for x in done_set_show_btc]
+    btc_y = [x[2] / done_set_show_btc[0][2] for x in done_set_show_btc]
     dict_anti_x = {}
     dict_x = {}
+
     for a in range(len(btc_x)):
-        dict_anti_x[btc_x[a]] = done_set_show_btc[a][0]
-        dict_x[done_set_show_btc[a][0]] = btc_x[a]
+        dict_anti_x[btc_x[a]] = done_set_show_btc[a][1]
+
+        dict_x[done_set_show_btc[a][1]] = btc_x[a]
+        print("btc_x[a]" + str(btc_x[a]))
+        print(" dict_x[done_set_show_btc[a][0]] " + str(dict_x[done_set_show_btc[a][1]]))
 
     # sql_show_profit = "select * from my_capital order by state_dt asc"
-
+    print(" dict_x " + str(dict_x))
     sql_show_profit = "select max(a.capital),a.trade_date from my_capital a where a.trade_date is not null group by a.trade_date order by a.trade_date asc"
+
     cursor.execute(sql_show_profit)
     done_set_show_profit = cursor.fetchall()
-    print(done_set_show_profit)
+
+    #profit_x = [x[1] for x in done_set_show_profit]
     profit_x = [dict_x[x[1]] for x in done_set_show_profit]
+    print("profit_x " + str(profit_x))
     profit_y = [x[0] / done_set_show_profit[0][0] for x in done_set_show_profit]
+    print("profit_y" + str(profit_y))
 
 
     # 绘制收益率曲线（含大盘基准收益曲线）
@@ -152,9 +174,14 @@ if __name__ == '__main__':
     ax = fig.add_subplot(111)
     ax.xaxis.set_major_formatter(FuncFormatter(c_fnx))
 
-    plt.plot(btc_x, btc_y, color='blue')
-    plt.plot(profit_x, profit_y, color='red')
+    # plt.plot(btc_x, btc_y, color='blue')
 
+    plt.plot(btc_x, btc_y, color='blue')
+    print("btc_x" + str(btc_x))
+    print("btc_y" + str(btc_y))
+    plt.plot(profit_x, profit_y, color='red')
+    print("profit_x" + str(profit_x))
+    print("profit_y" + str(profit_y))
     plt.show()
 
     cursor.close()

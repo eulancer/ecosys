@@ -1,6 +1,7 @@
 from sklearn import svm
 from quant import DC
 
+
 # 机器学习暂时找不到应用场景
 def svm_cal(stock, start_date, end_date):
     stock = stock
@@ -14,6 +15,7 @@ def svm_cal(stock, start_date, end_date):
     ans2 = model.predict(test_case)  # 预测
     # 输出对2018-03-02的涨跌预测，1表示涨，0表示不涨。
     print(ans2[0])
+
 
 def main():
     # 模拟数据

@@ -15,9 +15,8 @@ class data_collect(object):
     def collect_DATA(self, in_code, start_dt, end_dt):
         # 建立数据库连接，获取日线基础行情(开盘价，收盘价，最高价，最低价，成交量，成交额)
         db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
-        print("连接成功")
         cursor = db.cursor()
-        print("连接成功")
+        print("DC 连接成功")
         sql_done_set = "SELECT * FROM stock_his_data where ts_code = '%s' and trade_date >= '%s' and trade_date<= '%s' order by trade_date asc" % (
             in_code, start_dt, end_dt)
         cursor.execute(sql_done_set)
@@ -66,9 +65,7 @@ class data_collect(object):
         self.test_case = np.array(
             [self.open_list[-1], self.close_list[-1], self.high_list[-1], self.low_list[-1], self.vol_list[-1],
              self.amount_list[-1]])
-        print("没有像是")
-        print(self.test_case)
-        print("没有像是")
+        print("测试数据集合"+self.test_case)
         self.data_train = np.array(self.data_train)
         print(self.data_train)
         self.data_target = np.array(self.data_target)

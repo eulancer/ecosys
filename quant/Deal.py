@@ -44,7 +44,7 @@ class Deal(object):
                 self.stock_map2 = {x[0]: int(x[2]) for x in done_set2}
                 self.stock_map3 = {x[0]: int(x[3]) for x in done_set2}
             for i in range(len(done_set2)):
-                sql = "select * from stock_info a where a.stock_code = '%s' and a.state_dt = '%s'" % (
+                sql = "select * from stock_info a where a.ts_code = '%s' and a.trade_date = '%s'" % (
                     done_set2[i][0], state_dt)
                 cursor.execute(sql)
                 done_temp = cursor.fetchall()

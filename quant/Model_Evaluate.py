@@ -27,6 +27,7 @@ def model_eva(stock, state_dt, para_window, para_dc_window):
     cursor.execute(sql_truncate_model_test)
     db.commit()
     return_flag = 0
+    print("清空评估用的中间表")
 
     # 开始回测，其中para_dc_window参数代表建模时数据预处理所需的时间窗长度
     for d in range(len(model_test_date_seq)):
