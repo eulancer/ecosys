@@ -41,7 +41,7 @@ def main():
         print(i)
         time.sleep(0.2)
     print("下载结束")
-    stock_hold.to_sql(name="stock_forecast", con=config.engine, schema=config.db, index=True, if_exists='append',
+    stock_hold.to_sql(name="stock_forecast", con=config.engine, schema=config.db, index=False, if_exists='append',
                       chunksize=1000)
 
 
