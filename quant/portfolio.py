@@ -35,9 +35,8 @@ def get_portfolio(stock_list, state_dt, para_window):
                 portfilio[j], model_test_date_seq[i], model_test_date_seq[i + 4])
             cursor.execute(sql_select)
             done_set = cursor.fetchall()
-            #print("投资整合"+str(done_set))
             db.commit()
-            temp = [x[3] for x in done_set]
+            temp = [x[6] for x in done_set]
             base_price = 0.00
             after_mean_price = 0.00
             if len(temp) <= 1:
@@ -85,13 +84,13 @@ def get_portfolio(stock_list, state_dt, para_window):
 
         con_temp.append(sharp)
         resu.append(con_temp)
-    print("poerfoli返回的值"+str(resu))
+    print("resu"+str(resu))
     return resu
 
 
 if __name__ == '__main__':
     pf = ['603912.SH', '300666.SZ', '300618.SZ', '002049.SZ', '300672.SZ']
-    ans = get_portfolio(pf, '20180101', 90)
+    ans = get_portfolio(pf, '20190912', 90)
     print('**************  Market Trend  ****************')
     print('Risk : ' + str(round(ans[0][0], 2)))
     print('Sharp ratio : ' + str(round(ans[0][2], 2)))

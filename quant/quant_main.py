@@ -45,7 +45,7 @@ if __name__ == '__main__':
     cursor = db.cursor()
     pro = get_pro_client()
     year = 2019
-    date_seq_start = str(year) + '0901'
+    date_seq_start = str(year) + '0801'
     date_seq_end = str(year) + '0912'
     """
     # 自定义股票池
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         # 每日推进式建模，并获取对下一个交易日的预测结果
         for stock in stock_pool:
             try:
-                ans2 = ev.model_eva(stock, date_seq[i], 90, 365)
+                ans2 = ev.model_eva(stock, date_seq[i], 1, 365)
                 # print('Date : ' + str(date_seq[i]) + ' Update : ' + str(stock))
             except Exception as ex:
                 print(ex)
