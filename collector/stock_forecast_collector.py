@@ -1,3 +1,4 @@
+# encoding=utf-8
 from collector.tushare_util import get_pro_client
 import time
 import pandas as pd
@@ -14,35 +15,40 @@ def get_stock_list():
     return data
 
 
-def get_stock_forcast_data(code, period):
+def get_stock_forcast_data(period):
     pro = get_pro_client()
-    stock_forcast_data = pro.forecast(ts_code=code, period=period,
-                                      fields='ts_code,ann_date,end_date,type,p_change_min,p_change_max,net_profit_min')
-    # print(stock_forcast_data)
-
-    stock_forcast_increase = []
-    if len(stock_forcast_data['type']) > 0:
-        print(stock_forcast_data['ts_code'][0] + stock_forcast_data['type'][0])
-        if stock_forcast_data['type'][0] == '预增':
-            stock_forcast_increase = stock_forcast_data
-            stock_hold.append(stock_forcast_data)
-            print(stock_forcast_data)
-    return stock_forcast_increase
+    stock_holds = pd.DataFrame()
+    stock_list = pd.DataFrame(get_stock_list())
+    i = 0
+    for index, row in stock_list.iterrows():
+        i = i + 1
+        print(i)
+        stock_forecast_data = pro.forecast(ts_code=row["ts_code"], period=period)
+        if len(stock_forecast_data['type']) > 0:
+            print(stock_forecast_data['ts_code'][0] + stock_forecast_data['type'][0])
+            if stock_forecast_data['type'][0] == '预增':
+                print(type(stock_forecast_data))
+                # 合并预增的数组
+                stock_holds = pd.concat([stock_holds, stock_forecast_data])
+                print(stock_holds)
+                # break
+        time.sleep(0.2)
+    stock_holds.to_sql(name="stock_forecast", con=config.engine, schema=config.db, index=False, if_exists='append')
 
 
 def main():
-    stock_list = pd.DataFrame(get_stock_list())
     ann_date = '20190731'
     period = '20190930'
-    i = 0
-    for index, row in stock_list.iterrows():
-        i += 1
-        get_stock_forcast_data(row["ts_code"], period)
-        print(i)
-        time.sleep(0.2)
+    # get_stock_forcast_data(period)
+    read()
     print("下载结束")
-    stock_hold.to_sql(name="stock_forecast", con=config.engine, schema=config.db, index=False, if_exists='append',
-                      chunksize=1000)
+
+
+def read():
+    sql = "SELECT * FROM stock_forecast "  # SQL query
+    df = pd.read_sql(sql=sql, con=config.engine)  # read data to DataFrame 'df'
+    df.to_csv("cs.csv", encoding="GBk")
+    print(df)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+# encoding=utf-8
 import tushare as ts
 import MySQLdb
 import pandas as p

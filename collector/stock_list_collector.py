@@ -1,6 +1,8 @@
+# encoding=utf-8
 import config
 from collector.tushare_util import get_pro_client
 import pandas as pd
+import sys
 
 
 # 获取股票基本信息

@@ -11,14 +11,15 @@ def update_stocks_data(last_day):
     df = pro.daily(trade_date=last_day)
     # 存入数据
     print(df)
-    df.to_sql(name="stock_his_data", con=config.engine, schema=config.db, index=True, if_exists='append')
+    df.to_sql(name="stock_his_data", con=config.engine, schema=config.db, index=False, if_exists='append')
     up_data = {"up_date": last_day}
     df_update = pd.DataFrame({"up_date": [last_day]})
-    df_update.to_sql(name="stock_update_log", con=config.engine, schema=config.db, index=True, if_exists='append')
+    df_update.to_sql(name="stock_update_log", con=config.engine, schema=config.db, index=False, if_exists='append')
+
 
 
 # 获取交易日
-def get_recent_trading_date():
+def get_last_trading_date():
     pro = get_pro_client()
     # 获取交易日
     alldays = pro.trade_cal()
@@ -33,9 +34,8 @@ def get_recent_trading_date():
         last_day = datetime.datetime.today() + datetime.timedelta(days=-i)
         last_day = last_day.strftime('%Y%m%d')
         print(last_day)
-    last_day = datetime.datetime.today() + datetime.timedelta(days=-1)
     print(last_day)
-    return last_day.strftime('%Y%m%d')
+    return last_day
 
 
 # 验证数据是否更新
@@ -50,7 +50,8 @@ def check_the_update(last_day):
 
 def main():
     print("开始更新")
-    last_day = get_recent_trading_date()
+    last_day = get_last_trading_date()
+    # last_day = '20190916'
     print(str(last_day))
     if not check_the_update(last_day):
         update_stocks_data(last_day)

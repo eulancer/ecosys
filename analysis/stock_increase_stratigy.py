@@ -5,6 +5,7 @@ import timedelta
 import config
 from collector.tushare_util import get_pro_client
 
+
 # 获取上涨放量股票
 def increase_stocks(current_day, last_day):
     pro = get_pro_client()
@@ -41,6 +42,14 @@ def increase_stocks(current_day, last_day):
                      chunksize=1000)
 
 
+# 获取两次放量数据
+def check_twice_increase():
+    sql = "select* from  stock_history where ts_code in (select ts_code from stock_history group by ts_code having " +\
+          "count(ts_code) > 1) "
+    df = pd.read_sql(sql=sql, con=config.engine)
+    print("两次放量"+df)
+
+
 # 获取交易日
 def get_recent_two_tradingdates():
     pro = get_pro_client()
@@ -50,13 +59,13 @@ def get_recent_two_tradingdates():
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
     today = datetime.datetime.today().strftime('%Y%m%d')
     print(today)
-    # 获取最近利康哥交易日
+    # 获取最近交易日
     last_day = today
     last_second_day = ""
     print(last_day not in tradingdays["cal_date"].values)
     i = 0
     while last_day not in tradingdays["cal_date"].values:
-        i =i + 1
+        i = i + 1
         print(i)
         last_day = datetime.date.today() + datetime.timedelta(-i)
         last_day = last_day.strftime('%Y%m%d')
@@ -73,6 +82,7 @@ def main():
     days = get_recent_two_tradingdates()
     print(days)
     increase_stocks(days[0], days[1])
+    check_twice_increase()
 
 
 if __name__ == "__main__":
