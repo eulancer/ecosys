@@ -5,7 +5,6 @@ import timedelta
 import config
 from collector.tushare_util import get_pro_client
 
-
 # 获取上涨放量股票
 def increase_stocks(current_day, last_day):
     pro = get_pro_client()
