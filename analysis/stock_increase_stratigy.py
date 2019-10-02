@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import timedelta
+import zmail
 
 import config
 from collector.tushare_util import get_pro_client
@@ -22,7 +23,7 @@ def increase_stocks(current_day, last_day):
     stockList = pd.DataFrame(columns=df1.columns)
     stockList["rate"] = None
     rates = []
-    stockList_noST=stcok_list_nost()
+    stockList_noST = stcok_list_nost()
     for index, row in df1.iterrows():
         if len(row) > 0:
             ts_codeT = row["ts_code"]
@@ -41,11 +42,12 @@ def increase_stocks(current_day, last_day):
     # 存入数据
     stockList.to_sql(name="stock_history", con=config.engine, schema=config.db, index=True, if_exists='append',
                      chunksize=1000)
+    return stockList
 
 
 # 获取两次放量数据
 def check_twice_increase():
-    sql = "select* from  stock_history where ts_code in (select ts_code from stock_history group by ts_code having " +\
+    sql = "select* from  stock_history where ts_code in (select ts_code from stock_history group by ts_code having " + \
           "count(ts_code) > 1) "
     df = pd.read_sql(sql=sql, con=config.engine)
     print("两次放量")
@@ -78,6 +80,7 @@ def get_recent_two_tradingdates():
     recent_two_tradingdates = [last_day, last_second_day]
     return recent_two_tradingdates
 
+
 def stcok_list_nost():
     pro = get_pro_client()
     df2 = pro.stock_basic()
@@ -90,8 +93,14 @@ def main():
     # 获取最近2个交易日
     days = get_recent_two_tradingdates()
     print(days)
-    increase_stocks(days[0], days[1])
-    check_twice_increase()
+    stock_list = increase_stocks(days[0], days[1])
+
+    stock_list_html = stock_list.to_html(escape=True, index=False, sparsify=True, border=1, index_names=False,
+                                         header=True)
+    print(stock_list_html)
+
+    # server.send_mail('lingssh@126.com', {'subject': 'Hello!',  stock_list_html: 'By zmail.'})
+    # check_twice_increase()
 
 
 if __name__ == "__main__":
