@@ -2,7 +2,6 @@ import time
 import tushare
 import pandas as pd
 from collector.tushare_util import get_pro_client
-
 import config
 
 
@@ -27,13 +26,16 @@ def get_stock_hist_data(code, start, end):
 
 def main():
     stock_list = pd.DataFrame(get_stock_list())
-    start = '2017101'
-    end = '20191001'
+    start = '2020101'
+    end = '20201020'
     for index, row in stock_list.iterrows():
-        #if index > 1744:
-        get_stock_hist_data(row["ts_code"], start, end)
-        print(index)
-        time.sleep(0.01)
+        try:
+            if index >= 0:
+                get_stock_hist_data(row["ts_code"], start, end)
+                print(index)
+                time.sleep(0.01)
+        except Exception as re:
+            print(re)
     print("下载结束")
 
 

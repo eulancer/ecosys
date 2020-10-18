@@ -8,11 +8,12 @@ import time
 import config
 from collector.tushare_util import get_pro_client
 
+
 # 获取指定时间区间内的所有日期
-def get_day_list(day_start,day_end):
-    '''
+def get_day_list(day_start, day_end):
+    """
     获取指定时间区间内的所有日期
-    '''
+    """
     day_start = datetime.datetime.strptime(day_start, '%Y%m%d')
     day_end = datetime.datetime.strptime(day_end, '%Y%m%d')
     daylist = []
@@ -23,6 +24,7 @@ def get_day_list(day_start,day_end):
     day_amount = len(daylist)  # 总共天数
     print(daylist)
     return daylist
+
 
 # 获取CCTV新闻
 def get_ccTV(daylist):
@@ -39,15 +41,24 @@ def get_ccTV(daylist):
 
         if counter == 99:
             print("- 等待45s...")
-            time.sleep(45)
+            time.sleep(55)
             counter = 0
 
     # if not os.path.exists(tablefolder):  # 如果不存在这个文件夹路径，新建
     # os.mkdir(tablefolder)
+
+
+def update_cctv():
+    day = time.strftime("%Y%m%d", time.localtime())
+    pro = get_pro_client()
+    df = pro.cctv_news(date=day)  # CCTV新闻联播
+    df.to_sql(name="stock_cctv_news", con=config.engine, schema=config.db, index=True, if_exists='append',
+              chunksize=1000)
+
 def main():
-    day_start = r'20190101'  # 起始日期
-    day_end = r'20190923'  # 结束日期
-    day_list=get_day_list(day_start, day_end)
+    day_start = r'20201017'  # 起始日期
+    day_end = r'20201018'  # 结束日期
+    day_list = get_day_list(day_start, day_end)
     get_ccTV(day_list)
 
 

@@ -1,14 +1,22 @@
 # -*- encoding: UTF-8 -*-
 
 import logging
-import time
 import datetime
-import urllib
-import pandas as pd
+import trash.stock_increase_stratigy
+
+from trash import get_cctv_news
+from notices import stock_email
 
 
 def process():
     logging.info("************************ process start ***************************************")
+    get_cctv_news.update_cctv()
+    stock_list = trash.stock_increase_stratigy.stock_increase()
+    mail_title = datetime.datetime.today().strftime('%Y%m%d') + "选股策略"
+    stock_list_html = stock_list.to_html(escape=True, index=False, sparsify=True, border=1, index_names=False,
+                                         header=True)
+    stock_email.send_mail(mail_title, stock_list_html)
+
     """
     try:
         all_data = ts.get_today_all()
@@ -43,3 +51,11 @@ def process():
         time.sleep(2)
     """
     logging.info("************************ process   end ***************************************")
+
+
+def main():
+    process()
+
+
+if __name__ == '__main__':
+    main()

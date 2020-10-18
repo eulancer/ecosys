@@ -2,7 +2,7 @@ import datetime
 import pandas as pd
 import timedelta
 import zmail
-
+from notices.stock_email import send_mail
 import config
 from collector.tushare_util import get_pro_client
 
@@ -37,8 +37,6 @@ def increase_stocks(current_day, last_day):
                     rates.append(rate)
                     stockList["rate"] = rates
     print(stockList)
-    # 导出为csv
-    stockList.to_csv("std.csv", encoding="gbk", index=False)
     # 存入数据
     stockList.to_sql(name="stock_history", con=config.engine, schema=config.db, index=True, if_exists='append',
                      chunksize=1000)
@@ -59,7 +57,7 @@ def get_recent_two_tradingdates():
     pro = get_pro_client()
     # 获取交易日
     alldays = pro.trade_cal()
-    # print(alldays)
+
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
     today = datetime.datetime.today().strftime('%Y%m%d')
     print(today)
@@ -89,18 +87,17 @@ def stcok_list_nost():
     return data_list
 
 
-def main():
+def stock_increase():
     # 获取最近2个交易日
     days = get_recent_two_tradingdates()
-    print(days)
     stock_list = increase_stocks(days[0], days[1])
-
-    stock_list_html = stock_list.to_html(escape=True, index=False, sparsify=True, border=1, index_names=False,
-                                         header=True)
-    print(stock_list_html)
-
-    # server.send_mail('lingssh@126.com', {'subject': 'Hello!',  stock_list_html: 'By zmail.'})
+    return stock_list
+    # 两次放量
     # check_twice_increase()
+
+
+def main():
+    stock_increase()
 
 
 if __name__ == "__main__":

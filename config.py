@@ -13,3 +13,6 @@ db = 'stock_trade'
 user = 'root'
 password = ''
 unicode = 'utf8'
+
+#  邮件名单
+email_list = ['lingssh@126.com', 'tokttt@gmail.com']

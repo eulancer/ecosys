@@ -10,12 +10,11 @@ def update_stocks_data(last_day):
     # 获取当日股票信息
     df = pro.daily(trade_date=last_day)
     # 存入数据
-    print(df)
+    # print(df)
     df.to_sql(name="stock_his_data", con=config.engine, schema=config.db, index=False, if_exists='append')
     up_data = {"up_date": last_day}
     df_update = pd.DataFrame({"up_date": [last_day]})
     df_update.to_sql(name="stock_update_log", con=config.engine, schema=config.db, index=False, if_exists='append')
-
 
 
 # 获取交易日
@@ -23,8 +22,9 @@ def get_last_trading_date():
     pro = get_pro_client()
     # 获取交易日
     alldays = pro.trade_cal()
-    print(alldays)
+    # print(alldays)
     tradingdays = alldays[alldays["is_open"] == 1]  # 开盘日
+    # print(tradingdays)
     today = datetime.datetime.today().strftime('%Y%m%d')
     last_day = today
     # 如果当天不是交易日，时间往前提
@@ -50,12 +50,28 @@ def check_the_update(last_day):
 
 def main():
     print("开始更新")
-    last_day = get_last_trading_date()
-    # last_day = '20190916'
-    print(str(last_day))
+    #last_day = get_last_trading_date()
+    # 获取交易日
+    pro = get_pro_client()
+    alldays = pro.trade_cal()
+    # 获取已有数据的日期
+    sql = " SELECT trade_date FROM stock_his_data GROUP BY trade_date"
+    # "select distinct trade_date from stock_his_data"
+    df_his_date = pd.read_sql(sql=sql, con=config.engine)
+    print("df_his_date")
+    print(df_his_date)
+    # last_day = '20200909'
+    # print(str(last_day))
+    for day in alldays['cale_date']:
+        print("正在更新" + day + "数据")
+        if day not in df_his_date['trade_date']:
+            update_stocks_data(day)
+            print("正在更新" + "数据")
+    """ 
     if not check_the_update(last_day):
         update_stocks_data(last_day)
         print("正在更新" + last_day + "数据")
+    """
 
 
 if __name__ == "__main__":

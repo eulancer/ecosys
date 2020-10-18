@@ -1,6 +1,6 @@
 import tushare as ts
 import datetime
-from tushare_util import get_pro_client
+from collector.tushare_util import get_pro_client
 
 pro = get_pro_client()
 alldays = pro .trade_cal()

@@ -39,7 +39,6 @@ def get_stock_forcast_data(period):
 def main():
     ann_date = '20190731'
     period = '20190930'
-    # get_stock_forcast_data(period)
     read()
     print("下载结束")
 

@@ -20,12 +20,9 @@ def get_stock_number_data(code, start, end):
     data = pro.stk_holdernumber(ts_code=code, start_date=start, end_date=end)
     stock_data = pd.DataFrame(data)
     print(stock_data['holder_num'][0])
-    if len(stock_data) > 0:
-        if stock_data['holder_num'][0] < 20000:
-            stock_data.to_sql(name="stock_number_data", con=config.engine, schema=config.db, index=True,
-                              if_exists='append',
-                              chunksize=1000)
-            print(code + "已存入mysql")
+    stock_data.to_sql(name="stock_number_data", con=config.engine, schema=config.db, index=True,
+                      if_exists='append', chunksize=1000)
+    print(code + "已存入mysql")
 
 
 def main():
@@ -33,10 +30,10 @@ def main():
     start = '20190901'
     end = '20191212'
     for index, row in stock_list.iterrows():
-        # if index > 1744:
-        get_stock_number_data(row["ts_code"], start, end)
-        print(index)
-        time.sleep(0.02)
+        if index > 3697:
+            get_stock_number_data(row["ts_code"], start, end)
+            print(index)
+            time.sleep(0.1)
     print("下载结束")
 
 

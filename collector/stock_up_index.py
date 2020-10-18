@@ -15,7 +15,7 @@ def update_stock_index(ts_code, start_date, end_date):
 
 def main():
     start = '2010101'
-    end = '20191001'
+    end = '20201001'
     stock_index = ['000001.SH', '000300.SH ', '000905.SH', '399001.SZ ', '399005.SZ ', '399006.SZ ', '399016.SZ',
                    '399300.SZ']
     stock_index_df = pd.DataFrame()
