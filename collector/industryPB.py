@@ -1,0 +1,94 @@
+from collector.tushare_util import get_pro_client
+import pandas as pd
+
+"""
+# 构建各行业的最低值矩阵
+#  获取各行业符合要求的股票
+   # 获取所有行业股票清单
+#  获取股票PB
+
+
+"""
+
+
+# 构建各行业的最低值矩阵
+def get_judge():
+    IndustryPE = {'行业': ['银行', '保险', '证券'],
+                  '最低PB': [0.8, 0.8, 1.2]}
+    return pd.DataFrame(IndustryPE)
+
+
+#  获取各行业符合要求的股票
+def get_candidates(trade_date):
+    IndustryPE = get_judge()
+    j = 0
+    for industry in IndustryPE['行业']:
+        get_candidate_stock(industry, trade_date, IndustryPE['最低PB'][j])
+        j = j + 1
+
+
+# 获取PB
+def get_PB(code, trade_date):
+    pro = get_pro_client()
+    df = pro.daily_basic(ts_code=code, trade_date=trade_date,
+                         fields='ts_code,trade_date,turnover_rate,volume_ratio,pe,pb')
+    return df
+
+
+# 获取所有行业股票清单
+def get_stock(industry):
+    pro = get_pro_client()
+    df = pro.stock_basic(exchange='', list_status='L')
+    df = df[df['industry'] == industry]
+    codes = df.ts_code.values
+    names = df.name.values
+    stocks = dict(zip(names, codes))
+    return stocks
+
+
+# 获取股票清单
+def get_candidate_stock(industry, trade_date, Low_pb):
+    stocks = get_stock(industry)
+    stocks_p = []
+    i = 0
+    # 证券股的PB小于1.3 可以考虑买入
+    for code in stocks.values():
+        i = i + 1
+        print("第" + str(i) + "次")
+        try:
+            if get_PB(code, trade_date)['pb'][0] < Low_pb:
+                stocks_p.append(code)
+                print("该代码放入股票池 ")
+                print(code)
+            else:
+                print("不符合条件")
+        except Exception as re:
+            print(re)
+    print("符合要求的股票")
+    # 按照PB值排序
+    df = pd.DataFrame()
+    try:
+        for code in stocks_p:
+            df = df.append(get_PB(code, trade_date))
+    except Exception as re:
+        print(re)
+    # 按照列值排序
+    df.sort_values("pb", inplace=True)
+    print(df)
+    # 到处文件
+    """"
+       with open('D:/Work/git/ecosys/data/holder70.txt', 'w') as f:
+           for i in stocks_p:
+               f.write(i)
+       f.close()
+    """
+
+
+def main():
+    trade_date = '20210903'
+    # 显示所有行业
+    get_candidates(trade_date)
+
+
+if __name__ == "__main__":
+    main()

@@ -57,8 +57,6 @@ def find_price_vol_stock(n, r=1.2):
         high = all_data['adjhigh'][code]
         low = all_data['adjlow'][code]
         vol = all_data['adjvol'][code]
-        b = b + 1
-        print(b)
         # 剔除一字涨停
         flag = True
         if close.iloc[-1] == open_.iloc[-1] == high.iloc[-1] == low.iloc[-1]:
@@ -110,7 +108,7 @@ def main():
     stocks_60 = find_price_vol_stock(60)
     print(stocks_60)
     print('突破60日量价的个股为：\n')
-    print(stocks_60)
+    # print(stocks_60)
     print(f'突破60日量价个股个数为：{len(stocks_60)}')
     # data = stock_rps.read_data()
     # data.tail()
