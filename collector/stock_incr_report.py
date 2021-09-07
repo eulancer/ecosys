@@ -6,7 +6,7 @@ import seaborn as sns
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
 plt.rcParams['axes.unicode_minus'] = False
 
-
+######
 # 获取业绩预告信息
 def stock_incr_report(date, incr_type):
     pro = get_pro_client()
