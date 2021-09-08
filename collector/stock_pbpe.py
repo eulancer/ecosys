@@ -18,17 +18,20 @@ def main():
     PE_T = 15
     PB_T = 1
     df_choose = df[(df.pe <= PE_T) & (df.pb <= PB_T)]
-
+    i = 0
     income = []
     for c in df_choose.ts_code:
         df_income = pro.income(ts_code=c, start_date=last_year, end_date=start_date,
                                fields='ts_code,ann_date,f_ann_date,end_date,report_type,comp_type,basic_eps,diluted_eps')
         income.append(df_income['basic_eps'].iloc[0])
-        print("股票~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        i = i + 1
+        print("股票~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + str(i))
         print(c)
-        time.sleep(1)
+        time.sleep(1.2)
     df_choose['basic_eps'] = income
     df_choose_good = df_choose[df_choose.basic_eps > 1.0]
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print(df_choose_good)
     print(len(df_choose_good))
 
     data_path = './data/'
@@ -38,7 +41,7 @@ def main():
     csv_path = os.path.join(data_path, csv_name)
     data = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,list_date')
     data.to_csv(csv_path, index=False)
-    data[data.ts_code.isin(df_choose_good.ts_code)]
+    data = data[data.ts_code.isin(df_choose_good.ts_code)]
     print(data)
     # 显示所有行业
 
