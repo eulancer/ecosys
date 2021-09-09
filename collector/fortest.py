@@ -69,6 +69,7 @@ def get_total_concept_strength(today, download=False):
     concept_strength_df['strength'] = concept_strength_df.apply(get_concept_strength, axis=1)
     return concept_strength_df
 
+
 def get_one_code_concept_strength(code):
     '''''
     获取每个股票的所有概念强度总和
@@ -78,7 +79,6 @@ def get_one_code_concept_strength(code):
         return concept_strength_df[concept_strength_df.code.isin(concept_list)].strength.sum()
     else:
         return np.nan
-
 
 
 def concept():
@@ -140,7 +140,6 @@ def concept():
         with open("concept_name_dict.json", "r") as f:
             concept_name_dict = json.load(f)
 
-
     print(concept_name_dict)
 
 
@@ -169,8 +168,10 @@ def test():
     concept_df = pro.concept()
     print(concept_df)
 
+
 def main():
     concept()
+
 
 if __name__ == "__main__":
     main()
