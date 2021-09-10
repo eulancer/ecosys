@@ -272,6 +272,10 @@ def get_sta(concept_list, limit_up_df):
     print(res_df.sort_values('涨停数', ascending=False).head(20))
 
 
+#  典型板块强度跟踪
+#  按照估值在选股一次，给出最合理的结论
+
+
 def main():
     today = '20210910'
     next_day = '20210911'
