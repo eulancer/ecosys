@@ -229,10 +229,11 @@ def get_total_concept_strength(today, concept_list):
 
 
 # 获取各个股概念强度
-def get_one_code_concept_strength(code, concept_list):
+def get_one_code_concept_strength(code, concept_list, concept_strength_df):
     #
     today = '20210909'
-    concept_strength_df = get_total_concept_strength(today, concept_list)
+    # concept_strength_df = get_total_concept_strength(today, concept_list)
+    concept_strength_df = concept_strength_df
     code2concept_dict = concept_list[1]
     ''''' 
     获取每个股票的所有概念强度总和 
@@ -263,16 +264,26 @@ def main():
     # 当日概念列表
 
     hq_df = pro.daily(trade_date=today)
+    print(hq_df)
     concept_name_dict = concept_list[2]
     code2concept_dict = concept_list[1]
     ###
     ### 调用接口次数过多，需要优化
-    # hq_df['strength'] = hq_df.ts_code.apply(lambda x: get_one_code_concept_strength(x, concept_list))
-    hq_df['strength'] = hq_df.ts_code.apply(get_one_code_concept_strength(concept_list))
-    print("""查看所有个股概念强度~~~~~~~~~~~~~~~~~~~~~~~~~""")
+
+    ##### 查看所有的个股强度
+    """
+    hq_df['strength'] = hq_df.ts_code.apply(
+        lambda x: get_one_code_concept_strength(x, concept_list, concept_strength_df))
+    """
+    hq_df['strength'] = 0
+    for ts in range(len(hq_df)):
+        hq_df['strength'].iloc[ts] = get_one_code_concept_strength(hq_df['ts_code'].iloc[ts], concept_list,
+                                                                   concept_strength_df)
+        print("ts_______________________-")
+        print(ts)
+
     get_concept_name_list = lambda x: [concept_name_dict[code] for code in
                                        code2concept_dict[x]] if x in code2concept_dict.keys() else []
-
     hq_df['concept'] = hq_df.ts_code.apply(get_concept_name_list)
     print('查看所有个股概念强度')
     print(hq_df)
@@ -286,7 +297,28 @@ def main():
     print('查看概念强度前20个股次日表现')
     print(next_day_hq_df[next_day_hq_df.ts_code.isin(strength_head20.ts_code)].loc[:,
           ['ts_code', 'trade_date', 'pct_chg']])
+"""
+    hq_df.at['strength'] = get_one_code_concept_strength(ts.code, concept_list, concept_strength_df)
 
+    print("查看所有个股概念强度~~~~~~~~~~~~~~~~~~~~~~~~~")
+    
+    hq_df['strength'] = hq_df.ts_code.apply(get_one_code_concept_strength)  
+    get_concept_name_list = lambda x: [ concept_name_dict[code] for code in code2concept_dict[x]] if x in code2concept_dict.keys() else []  
+    hq_df['concept'] = hq_df.ts_code.apply(get_concept_name_list)  
+    
+    print('查看所有个股概念强度')
+    print(hq_df)
+    
+    strength_head20 = hq_df.sort_values(by='strength', ascending=False).head(20)
+    strength_head20['concept'] = strength_head20.ts_code.apply(get_concept_name_list)
+    print('查看概念强度前20个股')
+    print(strength_head20.loc[:, ['ts_code', 'trade_date', 'pct_chg', 'strength', 'concept']])
+
+    next_day_hq_df = pro.daily(trade_date=next_day)
+    print('查看概念强度前20个股次日表现')
+    print(next_day_hq_df[next_day_hq_df.ts_code.isin(strength_head20.ts_code)].loc[:,
+          ['ts_code', 'trade_date', 'pct_chg']])
+    """
 
 if __name__ == "__main__":
     main()
