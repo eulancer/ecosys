@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from collector.tushare_util import get_pro_client
 import pandas as pd
 from datetime import datetime
@@ -61,9 +63,7 @@ def get_byROE():
     stock_code = get_all_code()
     stocks_p = []
     num = 0
-    for code in stock_code.values():
-        num = num + 1
-        print("第" + str(num) + "次筛选￥￥￥￥￥￥￥￥￥￥￥")
+    for code in tqdm(stock_code.values()):
         print(code)
         ROE = get_fina_indicator(code);
         # print(ROE['roe'])
@@ -73,14 +73,12 @@ def get_byROE():
             if row['roe'] is not None:
                 if row['roe'] < 25:
                     print("不符合条件")
-                    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                     ROEstate = 0
                     break
                 else:
                     ROEstate = 1
             else:
                 print("ROE不存在")
-                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                 break
         if ROEstate == 1:
             print("符合条件")

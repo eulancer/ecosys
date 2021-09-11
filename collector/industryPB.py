@@ -34,7 +34,8 @@ def get_candidate_stock(industry, trade_date, Low_pb):
                 print("该代码放入股票池 ")
                 print(stocks[stocks['ts_code'] == code].values[0])
             else:
-                print("不符合条件")
+                # print("不符合条件")
+                pass
         except Exception as re:
             print(re)
 
