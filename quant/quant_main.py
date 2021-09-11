@@ -14,7 +14,6 @@ def get_sharp_rate():
     # 数据库连接
     db = pymysql.connect(host=config.host, user=config.user, passwd='', db=config.db, charset=config.unicode)
     cursor = db.cursor()
-
     sql_cap = "select * from my_capital a order by seq asc"
     cursor.execute(sql_cap)
     done_exp = cursor.fetchall()
