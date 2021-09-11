@@ -16,6 +16,7 @@ pd.set_option('display.width', 1000)
 pd.set_option('display.max_colwidth', 1000)
 
 
+# 按照估值在选股一次，给出最合理的结论
 # 获取当日涨停股票清单
 # 由于无法直接获取指定日期涨停股票清单，通过pro.stk_limit和pro.daily两个接口的信息获取当日涨停股票信息
 # 调用2次接口
@@ -150,6 +151,7 @@ def get_total_concept_strength(today, concept_list):
     limit_df = limit_list(trade_date=today)
 
     #  概念代码、代码概念、概念清单
+    # concept_list = get_concept(today)
     concept2code_dict = concept_list[0]
     code2concept_dict = concept_list[1]
     concept_name_dict = concept_list[2]
@@ -158,27 +160,24 @@ def get_total_concept_strength(today, concept_list):
     '''
     计算全市场概念强度 
     '''
-
     concept_pct_mean = []
-
+    print("概念~~~~~~~~~~~~~~")
     for ts in tqdm(concept2code_dict.keys()):
-        print("概念~~~~~~~~~~~~~~")
-        print(concept_name_dict[ts])
-
         # 获取当前概念板块的股票涨停数据
-        ## 取出每个概念对应股票列表
         code_df = pd.DataFrame(concept2code_dict[ts], columns=['ts_code'])
         # 与当天的日线行情表合并
         temp1 = pd.merge(code_df, hq_df, how='left', on='ts_code')
-        ##提取该概念当天股的涨停股票
+
         ## ~~~~~~~~~~后续还要去除ST股票
         limitup_df = pd.merge(limit_df, code_df, how='inner', on='ts_code')
-
         ## 求出该板块涨停股票数
         limitup_num = len(limitup_df)
-        print("该板块涨停的股票个数及股票名单")
-        print(limitup_num)
-        print(limitup_df)
+
+        if limitup_num > 0:
+            print(ts)
+            print("该板块涨停的股票个数及股票名单")
+            print(limitup_num)
+            print(limitup_df)
 
         # 计算龙头涨幅
         dragon_list = []
@@ -197,8 +196,8 @@ def get_total_concept_strength(today, concept_list):
             ## 昨天的数据可能这里有问题
             nolimitup_df.sort_values("pct_chg", inplace=True)
             dragon_list += nolimitup_df.ts_code.head(nolimitup_dragon_num).to_list()
-            print("涨停小于3个的版本龙头股票")
-            print(dragon_list)
+            # print("涨停小于3个的版本龙头股票")
+            # print(dragon_list)
         # 计算龙头平均涨幅
         dragon_mean = temp1[temp1["ts_code"].isin(dragon_list)].pct_chg.mean()
         # 循环添加概念的强度信息
@@ -237,11 +236,11 @@ def get_total_concept_strength(today, concept_list):
 
 
 # 获取各个股概念强度
-def get_one_code_concept_strength(code, concept_list, concept_strength_df):
-    #
-    today = '20210909'
+def get_one_code_concept_strength(today, code, concept_list, concept_strength_df):
+    # today = '20210909'
     # concept_strength_df = get_total_concept_strength(today, concept_list)
     concept_strength_df = concept_strength_df
+    # concept_list = get_concept(today)
     code2concept_dict = concept_list[1]
     ''''' 
     获取每个股票的所有概念强度总和 
@@ -260,7 +259,7 @@ def get_sta(concept_list, limit_up_df):
     code2concept_dict = concept_list[1]
     concept2code_dict = concept_list[0]
 
-    print("concept_list[0]~~~~~~~~~~~~~~~~~~~~~")
+    print("~~~~~~~~~~~~统计数据~~~~~~~~~~~~~~")
     result = []
     for k, v in concept2code_dict.items():
         limit_up_num = len(limit_up_df[limit_up_df.ts_code.isin(v)])
@@ -277,15 +276,16 @@ def get_sta(concept_list, limit_up_df):
 
 def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
     pro = get_pro_client()
+
     concept_name_dict = concept_list[2]
     concept2code_dict = concept_list[0]
-    # 获取交易日期
-    da_trade = pro.trade_cal(start_date=start_date, end_date=end_date, is_open=1)
-    # df = pd.date_range(start=start_date, end=end_date).strftime("%Y%m%d")
-    x_data = da_trade["cal_date"].values
 
+    da_trade = pro.trade_cal(start_date=start_date, end_date=end_date, is_open=1)  # 获取交易日期
+
+    x_data = da_trade["cal_date"].values
     # x_data = ['20210906', '20210907', '20210908', '20210909', '20210910']
     y_data_dict = {}
+
     print("开始趋势展示")
     concept_code_list = concept_code_list
     # concept_code_list = ['TS4', 'TS35']  # 军工 光伏
@@ -315,8 +315,6 @@ def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
             y_data_dict[concept_name_dict[code]].append(
                 len(limit_up_df[limit_up_df.ts_code.isin(concept2code_dict[code])])
             )
-    print(x_data)
-    print(y_data_dict)
 
     plot_name = '板块涨停可视化'
     line = Line().add_xaxis(xaxis_data=x_data)
@@ -340,45 +338,34 @@ def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
     line.render()
 
 
-#  典型板块强度跟踪
-#  按照估值在选股一次，给出最合理的结论
-
-
-def get_result():
-    today = '20210910'
-    next_day = '20210911'
+# today 时间，例：20210808
+# concept_list 嵌套的字段
+def get_Market_result(today, concept_list):
     pro = get_pro_client()
-    limit_up_df = limit_list(today)
-    #  概念清单
-    concept_list = get_concept(today)
 
+    # 参数
+    today = today  # 开始时间
+    dt = datetime.datetime.strptime(today, "%Y%m%d")  # 结束时间
+    next_day = (dt + datetime.timedelta(days=1)).strftime("%Y%m%d")
+    limit_up_df = limit_list(today)  # 涨停清单
+
+    # 显示板块涨停数量统计
     get_sta(concept_list, limit_up_df)
 
+    # 显示版块概念强度
     concept_strength_df = get_total_concept_strength(today, concept_list)
     concept_strength_df.sort_values("strength", inplace=True, ascending=False)
     print('查看所有版块概念强度')
     print(concept_strength_df)
 
-    # 当日概念列表
-
-    hq_df = pro.daily(trade_date=today)
-    print(hq_df)
+    # 查看所有的个股强度
+    hq_df = pro.daily(trade_date=today)  # 当日概念列表
     concept_name_dict = concept_list[2]
     code2concept_dict = concept_list[1]
-    ###
-    ### 调用接口次数过多，需要优化
-
-    ##### 查看所有的个股强度
-    """
-    hq_df['strength'] = hq_df.ts_code.apply(
-        lambda x: get_one_code_concept_strength(x, concept_list, concept_strength_df))
-    """
     hq_df['strength'] = 0
     for ts in range(len(hq_df)):
-        hq_df['strength'].iloc[ts] = get_one_code_concept_strength(hq_df['ts_code'].iloc[ts], concept_list,
+        hq_df['strength'].iloc[ts] = get_one_code_concept_strength(today, hq_df['ts_code'].iloc[ts], concept_list,
                                                                    concept_strength_df)
-        print("ts_______________________-")
-        print(ts)
 
     get_concept_name_list = lambda x: [concept_name_dict[code] for code in
                                        code2concept_dict[x]] if x in code2concept_dict.keys() else []
@@ -386,30 +373,30 @@ def get_result():
     print('查看所有个股概念强度')
     print(hq_df)
 
+    # 查看概念强度前20个股
     strength_head20 = hq_df.sort_values(by='strength', ascending=False).head(20)
     strength_head20['concept'] = strength_head20.ts_code.apply(get_concept_name_list)
     print('查看概念强度前20个股')
     print(strength_head20.loc[:, ['ts_code', 'trade_date', 'pct_chg', 'strength', 'concept']])
 
+    # 概念强度前20个股次日表现
     next_day_hq_df = pro.daily(trade_date=next_day)
+    next_day_hq = pd.merge(strength_head20['ts_code'], next_day_hq_df, how='inner', on=['ts_code'])
     print('查看概念强度前20个股次日表现')
-    print(next_day_hq_df[next_day_hq_df.ts_code.isin(strength_head20.ts_code)].loc[:,
-          ['ts_code', 'trade_date', 'pct_chg']])
+    print(next_day_hq.loc[:, ['ts_code', 'trade_date', 'pct_chg']])
 
 
 def main():
-    # get_result()
-    today = '20210910'
-    # xi
-    #  概念清单
-    concept_list = get_concept(today)
-    start_date = 20210901
+    today = '20210708'  # 指定的日期
+    concept_list = get_concept(today)  # 概念清单(为了避免多次调用接口，所以采用传参的方式)
+    # 指定日期市场强度分析
+    get_Market_result(today, concept_list)
+
+    # 获取概念的趋势
+    start_date = 20210801  # 板块股票分析时间及结束时间
     end_date = datetime.datetime.now().strftime('%Y%m%d')
-    print(end_date)
     concept_code_list = ['TS4', 'TS35']  # 军工 光伏
     get_concept_trend(start_date, end_date, concept_list, concept_code_list)
-    # df = pd.date_range(start='20210701', end='20210910').strftime("%Y%m%d")
-    # print(df.values)
 
 
 if __name__ == "__main__":
