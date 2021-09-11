@@ -1,27 +1,11 @@
 from collector.tushare_util import get_pro_client
+from collector.tushare_util import get_all_code
 import datetime
 import time
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 import config
-
-
-# 获取当前交易的股票代码和名称
-def get_all_code():
-    pro = get_pro_client()
-    df = pro.stock_basic(exchange='', list_status='L')
-    # 去除ST股票
-    df = df[~df.name.str.contains('ST')]
-    # 去除202011以后的新股
-    df['list_date'] = df['list_date'].apply(lambda x: datetime.strptime(x, '%Y%m%d'))
-    print(df['list_date'])
-    df = df[(df['list_date'] < datetime(2021, 1, 1))]
-
-    codes = df.ts_code.values
-    names = df.name.values
-    stock = dict(zip(names, codes))
-    return stock
 
 
 # 获取当前国企企业代码

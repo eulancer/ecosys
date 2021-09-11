@@ -8,15 +8,16 @@ import numpy as np
 
 sdate = '20130101'
 edate = '20210831'
+period = '20181231'
 this_year = 2021
 next_year_of_start_year = 2019
-n = 3
+n = 3  # 统计的年数 ，this_year-next_year_of_start_year+1
 
 
 # 财务指标数据fina_indicator
 def get_fina_indicator(ts_code):
     pro = get_pro_client()
-    fina = pro.fina_indicator(ts_code=ts_code, start_date=sdate, end_date=edate, period='20181231',
+    fina = pro.fina_indicator(ts_code=ts_code, start_date=sdate, end_date=edate, period=period,
                               fields='end_date,ts_code,roe')
     # 时间 扣非  销售毛利率 ROE
     for i in range(next_year_of_start_year, this_year):
@@ -24,51 +25,31 @@ def get_fina_indicator(ts_code):
         fina_next = pro.fina_indicator(ts_code=ts_code, start_date=sdate, end_date=edate, period=p,
                                        fields='end_date,ts_code,roe')
         fina = pd.concat([fina, fina_next])
-
     try:
         # Tushare提供的数据有时候有重复的部分，需要去掉
         fina = fina.drop([1])
     except:
         pass
     try:
-        fina['index'] = range(0, 3)
+        # 设置序列
+        fina['index'] = range(0, n)
         fina = fina.set_index('index')
     except:
         pass
-    print(fina)
+    # 接口调用次数限制限制
     time.sleep(2)
     return fina
 
 
-# 获取当前交易的股票代码和名称
-def get_all_code():
-    pro = get_pro_client()
-    df = pro.stock_basic(exchange='', list_status='L')
-    # 去除ST股票
-    df = df[~df.name.str.contains('ST')]
-    # 去除202011以后的新股
-    df['list_date'] = df['list_date'].apply(lambda x: datetime.strptime(x, '%Y%m%d'))
-    df = df[(df['list_date'] < datetime(2017, 1, 1))]
-
-    codes = df.ts_code.values
-    names = df.name.values
-    stock = dict(zip(names, codes))
-    print(stock)
-    print("股票数量为")
-    print(len(stock))
-    return stock
-
-
-def get_byROE():
+def get_byRoe():
     stock_code = get_all_code()
     stocks_p = []
     num = 0
-    for code in tqdm(stock_code.values()):
-        print(code)
-        ROE = get_fina_indicator(code);
+    for code in tqdm(stock_code['ts_code'].values):
+        Roe = get_fina_indicator(code)
         # print(ROE['roe'])
-        ROEstate = 1
-        for index, row in ROE.iterrows():
+        RoeState = 1
+        for index, row in Roe.iterrows():
             print(row['roe'])  # 输出每行的索引值
             if row['roe'] is not None:
                 if row['roe'] < 25:
@@ -80,23 +61,39 @@ def get_byROE():
             else:
                 print("ROE不存在")
                 break
-        if ROEstate == 1:
-            print("符合条件")
-            print("股票代码")
-            print(code)
+        if RoeState == 1:
+            print("符合条件股票代码")
+            name = stock_code[stock_code['ts_code'] == code]['name']
+            print(str(code)+"~~"+str(name))
             stocks_p.append(code)
         else:
             pass
     print(stocks_p)
+    ## 存数据
     with open('D:/Work/git/ecosys/data/ROE25.txt', 'w') as f:
         for i in stocks_p:
             f.write(i)
     f.close()
 
 
+# 获取当前交易的股票代码和名称
+def get_all_code():
+    pro = get_pro_client()
+    df = pro.stock_basic(exchange='', list_status='L')
+    # 去除ST股票
+    df = df[~df.name.str.contains('ST')]
+    # 去除202011以后的新股
+    df['list_date'] = df['list_date'].apply(lambda x: datetime.strptime(x, '%Y%m%d'))
+    df = df[(df['list_date'] < datetime(2017, 1, 1))]
+    stocks = df[['ts_code', 'name']]
+    print("股票数量为")
+    print(len(stocks))
+    return stocks
+
+
 def main():
     trade_date = '20210903'
-    get_byROE()
+    get_byRoe()
 
 
 if __name__ == "__main__":

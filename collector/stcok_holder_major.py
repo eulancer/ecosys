@@ -1,47 +1,28 @@
 from datetime import datetime
-
+from tqdm import tqdm
 from collector.tushare_util import get_pro_client
+from collector.tushare_util import get_all_code
 import numpy as np
 import pandas as pd
 import time
 
 
-# 获取当前交易的股票代码和名称
-def get_all_code():
-    pro = get_pro_client()
-    df = pro.stock_basic(exchange='', list_status='L')
-    # 去除ST股票
-    df = df[~df.name.str.contains('ST')]
-    # 去除2020101以后的新股
-    df['list_date'] = df['list_date'].apply(lambda x: datetime.strptime(x, '%Y%m%d'))
-    print(df['list_date'])
-    df = df[(df['list_date'] < datetime(2021, 1, 1))]
-
-    codes = df.ts_code.values
-    names = df.name.values
-    stock = dict(zip(names, codes))
-    return stock
-
-
+# 获取十大股东持股数量
 def get_holder_data(code, ann_date):
     pro = get_pro_client()
     df = pro.top10_holders(ts_code=code, ann_date=ann_date)
     df2 = df.drop_duplicates(['holder_name'], keep='first')
-    # print(df2['hold_ratio'].sum())
     return df2['hold_ratio'].sum()
 
 
-def get_all_stock(ann_date):
+# 十大股东持股数量大于70&
+def get_all_stock(ann_date, percent):
     stocks = get_all_code()
     stocks_p = []
-    ann_date = ann_date
-    i = 1
-    for code in stocks.values():
-        i = i + 1
-        print("第" + str(i) + "次")
+    for code in tqdm(stocks.values()):
         time.sleep(6)
         try:
-            if get_holder_data(code, ann_date) > 70:
+            if get_holder_data(code, ann_date) > percent:
                 stocks_p.append(code)
                 print("该代码放入股票池 ")
                 print(code)
@@ -57,7 +38,8 @@ def get_all_stock(ann_date):
 
 def main():
     ann_date = '20210831'
-    get_all_stock(ann_date)
+    percent = 70
+    get_all_stock(ann_date, percent)
 
 
 if __name__ == "__main__":

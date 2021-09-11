@@ -1,5 +1,4 @@
 from tqdm import tqdm
-
 from collector.tushare_util import get_pro_client
 import pandas as pd
 
@@ -70,8 +69,8 @@ def get_stock(industry):
     pro = get_pro_client()
     df = pro.stock_basic(exchange='', list_status='L')
     stocks = df[df['industry'] == industry]
-
-    return stocks[['ts_code', 'name']]
+    stocks = stocks.loc[['ts_code', 'name']]
+    return stocks
 
 
 # 获取PB
