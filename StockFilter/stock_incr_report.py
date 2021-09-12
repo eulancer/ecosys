@@ -1,10 +1,11 @@
-from collector.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_pro_client
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 显示中文标签
 plt.rcParams['axes.unicode_minus'] = False
+
 
 ######
 # 获取业绩预告信息

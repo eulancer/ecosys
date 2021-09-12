@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from collector.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_pro_client
 import numpy as np
 import pandas as pd
 import time

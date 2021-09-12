@@ -1,7 +1,7 @@
 from datetime import datetime
 from tqdm import tqdm
-from collector.tushare_util import get_pro_client
-from collector.tushare_util import get_all_code
+from StockFilter.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_all_code
 import numpy as np
 import pandas as pd
 import time

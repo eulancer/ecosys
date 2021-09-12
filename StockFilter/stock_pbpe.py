@@ -1,6 +1,6 @@
 import os
 import time
-from collector.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_pro_client
 import pandas as pd
 
 

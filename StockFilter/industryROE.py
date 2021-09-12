@@ -1,6 +1,6 @@
 from datetime import time
 from tqdm import tqdm
-from collector.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_pro_client
 import pandas as pd
 import numpy as np
 
@@ -141,7 +141,8 @@ def get_Roe(code):
         if j == 0:
             pass
         else:
-            data['Growth rate of profit_dedt'][j] = (data['profit_dedt'][j] - data['profit_dedt'][j - 1]) / data['profit_dedt'][j - 1]
+            data['Growth rate of profit_dedt'][j] = (data['profit_dedt'][j] - data['profit_dedt'][j - 1]) / \
+                                                    data['profit_dedt'][j - 1]
         data['Grossprofit_margin'][j] = fina['grossprofit_margin'][j]
         data['Cash'][j] = cash['n_cashflow_act'][j]
         data['Rate of Cash and profit_dedt'][j] = data['Cash'][j] / data['profit_dedt'][j]
@@ -149,6 +150,7 @@ def get_Roe(code):
         data['ROE'][j] = fina['roe_waa'][j]
         j = j + 1
     return data
+
 
 def main():
     code = '002555.SZ'
