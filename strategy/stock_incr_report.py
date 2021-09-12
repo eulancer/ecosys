@@ -1,4 +1,4 @@
-from StockFilter.tushare_util import get_pro_client
+from strategy.tushare_util import get_pro_client
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns

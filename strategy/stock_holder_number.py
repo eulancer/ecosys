@@ -1,5 +1,5 @@
-from StockFilter.tushare_util import get_pro_client
-from StockFilter.tushare_util import get_all_code_df
+from strategy.tushare_util import get_pro_client
+from strategy.tushare_util import get_all_code_df
 import time
 from time import mktime
 from datetime import datetime
@@ -43,7 +43,7 @@ def get_stock_list(End_dates):
                             inplace=True)
     df_holder = pd.merge(df_holder_now, df_holder_before, how='inner', on='ts_code')
     # 获取当前股票数据
-    df_basic = pro.daily_basic(trade_date=trade_date, fields='ts_code,trade_date,total_mv')
+    df_basic = pro.daily_basic(trade_date=trade_date)
     df_stock = pd.merge(df_holder, df_basic, how='inner', on='ts_code')
 
     # 获取候选股票名单
