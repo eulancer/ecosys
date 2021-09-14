@@ -1,10 +1,10 @@
 # 先引入后面可能用到的包（package）
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from tqdm import tqdm
 # 引入TA-Lib库
 import talib as ta
-from collector.tushare_util import get_pro_client
+from StockFilter.tushare_util import get_pro_client
 from datetime import datetime, timedelta
 # 正常显示画图时出现的中文和负号
 from pylab import mpl
@@ -54,14 +54,36 @@ def get_data(code, n=120):
 def arbr(stock, n=120):
     code = get_code()[stock]
     df = get_data(code, n)[['open', 'high', 'low', 'close']]
-    df['HO'] = df.high - df.open
-    df['OL'] = df.open - df.low
-    df['HCY'] = df.high - df.close.shift(1)
-    df['CYL'] = df.close.shift(1) - df.low
-    # 计算AR、BR指标
-    df['AR'] = ta.SUM(df.HO, timeperiod=26) / ta.SUM(df.OL, timeperiod=26) * 100
-    df['BR'] = ta.SUM(df.HCY, timeperiod=26) / ta.SUM(df.CYL, timeperiod=26) * 100
+    try:
+        df['HO'] = df.high - df.open
+        df['OL'] = df.open - df.low
+        df['HCY'] = df.high - df.close.shift(1)
+        df['CYL'] = df.close.shift(1) - df.low
+        # 计算AR、BR指标
+        df['AR'] = ta.SUM(df.HO, timeperiod=26) / ta.SUM(df.OL, timeperiod=26) * 100
+        df['BR'] = ta.SUM(df.HCY, timeperiod=26) / ta.SUM(df.CYL, timeperiod=26) * 100
+    except:
+        pass
     return df[['close', 'AR', 'BR']].dropna()
+
+
+# 买入信号：BR通常运行在AR上方，一旦BR跌破AR并在AR之下运行时，表明市场开始筑底，视为买进信号；BR<40,AR<60: 空方力量较强，但随时可能反转上涨，考虑买进。
+
+# 判断买入股票
+def arbr_result(stock):
+    df = arbr(stock, n=120)
+    if df['AR'].iat[-1] > df['BR'].iat[-1] and df['BR'].iat[-1] < 100:
+        # print('AR')
+        # print(df['AR'].iat[0])
+        # print('BR')
+        # print(df['BR'].iat[0])
+        print('出现买入信号,BR运行在AR下方')
+        print(stock)
+        # stocks_p.append(stock)
+    if df['AR'].iat[-1] < 50 and df['BR'].iat[-1] < 40:
+        print('出现买入信号,BR<40,AR<50: 空方力量较强，但随时可能反转上涨，考虑买进')
+        print(stock)
+        return stock
 
 
 # 对价格和ARBR进行可视化
@@ -76,11 +98,27 @@ def plot_arbr(stock, n=120):
 
 
 def main():
+    stocks = get_code()
+    stocks_p = []
+    for name in tqdm(stocks.keys()):
+        try:
+            stock = arbr_result(name)
+            stocks_s = stocks_p.append(stock)
+        except:
+            pass
+
+    stocks_result = pd.DataFrame(stocks_s)
+    print(stocks_result)
+    with open(r'ArBR单.txt', 'w', encoding='utf-8')as f:
+        f.write('ArBR单\n')
+        stocks_result.to_csv(f, index=False)
+    f.close()
+
     # plot_arbr('上证综指')
-    plot_arbr('上证综指', n=1000)
+    # plot_arbr('上证综指', n=1000)
     # plot_arbr('创业板指', n=250)
     # plot_arbr('沪深300', n=250)
-    plot_arbr('海特生物', n=210)
+    # plot_arbr('东方电缆', n=210)
 
 
 if __name__ == "__main__":

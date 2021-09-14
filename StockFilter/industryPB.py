@@ -21,6 +21,7 @@ def get_candidates(trade_date, IndustryPE):
 # 获取股票清单
 def get_candidate_stock(industry, trade_date, Low_pb):
     stocks = get_stock(industry)
+    print(stocks)
     stocks_p = []
     i = 0
     # 证券股的PB小于1.3 可以考虑买入
@@ -69,7 +70,8 @@ def get_stock(industry):
     pro = get_pro_client()
     df = pro.stock_basic(exchange='', list_status='L')
     stocks = df[df['industry'] == industry]
-    stocks = stocks.loc[['ts_code', 'name']]
+    stocks = stocks[['ts_code', 'name']]
+    #print(stocks)
     return stocks
 
 
@@ -82,7 +84,7 @@ def get_PB(code, trade_date):
 
 
 def main():
-    trade_date = '20210910'
+    trade_date = '20210913'
     # 构建各行业的最低值矩阵
     IndustryPE = {'行业': ['银行', '保险', '证券'],
                   '最低PB': [0.8, 0.8, 1.2]}
