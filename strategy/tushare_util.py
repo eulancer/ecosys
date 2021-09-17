@@ -30,7 +30,7 @@ def get_all_code():
     stock = dict(zip(names, codes))
     return stock
 
-
+# 获取 代码、名称的dataframe
 def get_all_code_df():
     pro = get_pro_client()
     df = pro.stock_basic(exchange='', list_status='L')
