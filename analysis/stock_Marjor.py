@@ -1,4 +1,4 @@
-from collector.tushare_util import get_pro_client
+from strategy.tushare_util import get_pro_client
 import datetime
 import pandas as pd
 from dateutil.parser import parse
@@ -9,7 +9,6 @@ import time
 
 # 获取所有股票信息
 def get_stockData(trade_date):
-    trade_date = trade_date
     pro = get_pro_client()
     # 先获得所有股票的收盘数据
     df_close = pro.daily(trade_date=trade_date)

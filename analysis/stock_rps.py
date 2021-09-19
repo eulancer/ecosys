@@ -4,7 +4,7 @@ import tushare as ts
 import matplotlib.pyplot as plt
 
 import config
-from collector.tushare_util import get_pro_client
+from strategy.tushare_util import get_pro_client
 from pylab import mpl
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']

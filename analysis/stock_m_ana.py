@@ -6,7 +6,7 @@ import seaborn as sns
 import mplfinance as mpf
 import matplotlib.pyplot as plt
 
-from collector.tushare_util import get_pro_client
+from strategy.tushare_util import get_pro_client
 
 # 正常显示画图时出现的中文和负号
 from pylab import mpl
@@ -39,9 +39,6 @@ def index_data(ts_code, start_date, end_date):
 
 def get_index_data(ts_code, start_date, end_date):
     pro = get_pro_client()
-    ts_code = ts_code
-    start_date = start_date
-    end_date = end_date
     df = pro.index_daily(ts_code=ts_code, start_date=start_date, end_date=end_date)
     df.index = pd.to_datetime(df.trade_date)
     return df

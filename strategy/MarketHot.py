@@ -387,7 +387,7 @@ def get_Market_result(today, concept_list):
 
 
 def main():
-    today = '20210708'  # 指定的日期
+    today = '20210917'  # 指定的日期
     concept_list = get_concept(today)  # 概念清单(为了避免多次调用接口，所以采用传参的方式)
     # 指定日期市场强度分析
     get_Market_result(today, concept_list)
