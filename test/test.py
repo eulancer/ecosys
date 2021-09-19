@@ -1,46 +1,45 @@
-import tushare as ts
-import MySQLdb
-import pandas as p
-from sqlalchemy import create_engine
-from sqlalchemy.dialects.mysql import pymysql
-from sqlalchemy.orm import sessionmaker
-import pymysql
-import config
-from collector.tushare_util import get_pro_client
-
-ts.set_token('1b61e563de958fab5733a11103409224a50673ca4857b20b1669b016')
-
-engine = create_engine('mysql+pymysql://root@127.0.0.1:3306/test?charset=utf8')
-host = '127.0.0.1'
-port = 3306
-db = 'test'
-user = 'root'
-password = ''
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib as mpl
+import datetime as dt
 
 
 def main():
-    ts.get_hist_data('600848')
-    # ts.get_stock_basics()
-    # ts.get_cpi()
-    # pro = ts.pro_api()
-    # data_frame = ts.get_hist_data('600848',start='2016-01-01',end='2016-02-01')
+    fig = plt.figure()
+    ax2 = fig.add_subplot(212)
+    date2_1 = dt.datetime(2008, 9, 23)
+    date2_2 = dt.datetime(2008, 10, 3)
+    delta2 = dt.timedelta(days=1)
+    dates2 = mpl.dates.drange(date2_1, date2_2, delta2)
+    y2 = np.random.rand(len(dates2))
+    ax2.plot_date(dates2, y2, linestyle='-')
+    dateFmt = mpl.dates.DateFormatter('%Y-%m-%d')
+    ax2.xaxis.set_major_formatter(dateFmt)
 
-    con = engine.connect()  # 创建连接
-    df = ts.get_hist_data('600848')
-    df.to_sql(name='hist_data', con=con, if_exists='append', index=False)
-    # print(ts.get_cpi())
-    print(ts.get_hist_data('600848'))
-    # Session = sessionmaker(bind=engine)
+    daysLoc = mpl.dates.DayLocator()
+    hoursLoc = mpl.dates.HourLocator(interval=6)
+    ax2.xaxis.set_major_locator(daysLoc)
+    ax2.xaxis.set_minor_locator(hoursLoc)
 
+    fig.autofmt_xdate(bottom=0.18)
+    fig.subplots_adjust(left=0.18)
 
-def read_data():
-    pro = get_pro_client()
-    # 获取当日股票信息
-    start = '2010101'
-    end = '20191001'
-    df = pro.index_dailybasic(ts_code='000001.SH',start_date='20010101', end_date='20191018')
-    print(df)
+    ax1 = fig.add_subplot(211)
+    date1_1 = dt.datetime(2008, 9, 23)
+    date1_2 = dt.datetime(2009, 2, 16)
+    delta1 = dt.timedelta(days=10)
+    dates1 = mpl.dates.drange(date1_1, date1_2, delta1)
+    y1 = np.random.rand(len(dates1))
+    ax1.plot_date(dates1, y1, linestyle='--')
+    monthsLoc = mpl.dates.MonthLocator()
+    weeksLoc = mpl.dates.WeekdayLocator()
+    ax1.xaxis.set_major_locator(monthsLoc)
+    ax1.xaxis.set_minor_locator(weeksLoc)
+    monthsFmt = mpl.dates.DateFormatter('%b')
+    ax1.xaxis.set_major_formatter(monthsFmt)
+
+    plt.show()
 
 
 if __name__ == '__main__':
-    read_data()
+    main()

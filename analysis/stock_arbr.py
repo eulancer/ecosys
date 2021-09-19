@@ -9,7 +9,7 @@ from strategy.tushare_util import get_pro_client
 from strategy.tushare_util import get_all_code_df
 from datetime import datetime, timedelta
 from loguru import logger
-
+import matplotlib as mplab
 # 正常显示画图时出现的中文和负号
 from pylab import mpl
 
@@ -62,7 +62,7 @@ def get_data(code, n):
 # n ARBR 计算的时间跨度
 @logger.catch
 def arbr(code, n):
-    df = get_data(code, n)[['ts_code', 'trade_date', 'open', 'high', 'low', 'close']]
+    df = get_data(code, n)[['ts_code', 'open', 'high', 'low', 'close']]
     try:
         df['HO'] = df.high - df.open
         df['OL'] = df.open - df.low
@@ -73,7 +73,7 @@ def arbr(code, n):
         df['BR'] = ta.SUM(df.HCY, timeperiod=26) / ta.SUM(df.CYL, timeperiod=26) * 100
     except:
         pass
-    return df[['ts_code', 'trade_date', 'close', 'AR', 'BR']].dropna()
+    return df[['ts_code', 'close', 'AR', 'BR']].dropna()
 
 
 # 判断买入股票
@@ -95,21 +95,35 @@ def arbr_result(code, n):
 
 
 # 对价格和ARBR进行可视化
+@logger.catch
 def plot_arbr(code, df, n=120):
-    fig, ax = plt.subplots(2, 1, figsize=(14, 5))
+    fig = plt.figure(dpi=100, figsize=(15, 5))
+    # fig.suptitle(code+'matplotlib object-oriented')
 
-    # 价格趋势
-    fig.plot(df['trade_date'], df['close'])
-    fig.xlabel('')
-    fig.title(code + '价格走势', fontsize=15)
+    #  价格图
+    ax = fig.add_subplot(211)
+    ax.plot_date(df.index, df['close'], linestyle='-')
 
-    # arbr趋势
-    ax.plot(df['trade_date'], df[['AR', 'BR']])
-    ax.title(code + '价格走势', fontsize=15)
-    ax = plt.gca()
-    x_major_locator = MultipleLocator(20)
-    # ax为两条坐标轴的实例
-    ax.xaxis.set_major_locator(x_major_locator)
+    dateFmt = mpl.dates.DateFormatter('%b')
+    ax.xaxis.set_major_formatter(dateFmt)
+
+    # 设置X轴时间间隔
+    weeksLoc = mplab.dates.WeekdayLocator()
+    monthsLoc = mplab.dates.MonthLocator()
+    ax.xaxis.set_minor_locator(weeksLoc)
+    ax.xaxis.set_major_locator(monthsLoc)
+    ax.set(title=code + '价格走势')
+
+    #  趋势
+    ax_arbr = fig.add_subplot(212)
+    ax_arbr.plot_date(df.index, df[['AR', 'BR']], linestyle='-')
+
+    ax_arbr.set_title(code + 'ARBR')
+    # 设置X轴时间间隔
+    ax_arbr.xaxis.set_minor_locator(weeksLoc)
+    ax_arbr.xaxis.set_major_locator(monthsLoc)
+    ax_arbr.xaxis.set_major_formatter(dateFmt)
+
     plt.show()
 
 
