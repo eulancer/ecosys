@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
-import tushare as ts
 import matplotlib.pyplot as plt
 
 import config
-from strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_pro_client
 from pylab import mpl
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']

@@ -2,7 +2,7 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/data" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ULLN/data" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
@@ -11,5 +11,8 @@
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="D:\Works\Python\ecosys\requirements.txt" />
     <option name="modifyBaseFiles" value="true" />
+  </component>
+  <component name="TestRunnerService">
+    <option name="PROJECT_TEST_RUNNER" value="pytest" />
   </component>
 </module>

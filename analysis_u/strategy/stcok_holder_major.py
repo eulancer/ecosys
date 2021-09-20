@@ -1,7 +1,7 @@
 from datetime import datetime
 from tqdm import tqdm
-from strategy.tushare_util import get_pro_client
-from strategy.tushare_util import get_all_code
+from analysis_u.strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_all_code
 import numpy as np
 import pandas as pd
 import time
@@ -30,7 +30,7 @@ def get_all_stock(ann_date, percent):
         except Exception as re:
             print(re)
     print(stocks_p)
-    with open('D:/Work/git/ecosys/data/holder70.txt', 'w') as f:
+    with open('//holder70.txt', 'w') as f:
         for i in stocks_p:
             f.write(i)
     f.close()

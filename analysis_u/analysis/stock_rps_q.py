@@ -1,9 +1,6 @@
 import datetime
 import pandas as pd
 import config
-from analysis import stock_rps
-
-from scipy.constants import day
 
 
 # 从数据库中获取复权价格和成交量

@@ -5,8 +5,8 @@ from matplotlib.pyplot import MultipleLocator
 from tqdm import tqdm
 # 引入TA-Lib库
 import talib as ta
-from strategy.tushare_util import get_pro_client
-from strategy.tushare_util import get_all_code_df
+from analysis_u.strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_all_code_df
 from datetime import datetime, timedelta
 from loguru import logger
 import matplotlib as mplab

@@ -1,7 +1,7 @@
 import datetime
 import os
 import time
-from strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_pro_client
 import pandas as pd
 from tqdm import tqdm
 import json

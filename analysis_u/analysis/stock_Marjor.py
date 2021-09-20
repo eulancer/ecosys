@@ -1,4 +1,4 @@
-from strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_pro_client
 import datetime
 import pandas as pd
 from dateutil.parser import parse

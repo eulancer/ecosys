@@ -2,16 +2,16 @@
 
 import logging
 import datetime
-import trash.stock_increase_stratigy
+import analysis_u.trash.stock_increase_stratigy
 
-from trash import get_cctv_news
-from notices import stock_email
+from analysis_u.trash import get_cctv_news
+from analysis_u.notices import stock_email
 
 
 def process():
     logging.info("************************ process start ***************************************")
     get_cctv_news.update_cctv()
-    stock_list = trash.stock_increase_stratigy.stock_increase()
+    stock_list = analysis_u.trash.stock_increase_stratigy.stock_increase()
     mail_title = datetime.datetime.today().strftime('%Y%m%d') + "选股策略"
     stock_list_html = stock_list.to_html(escape=True, index=False, sparsify=True, border=1, index_names=False,
                                          header=True)

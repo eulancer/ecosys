@@ -1,5 +1,5 @@
-from strategy.tushare_util import get_pro_client
-from strategy.tushare_util import get_all_code_df
+from analysis_u.strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_all_code_df
 import time
 from time import mktime
 from datetime import datetime

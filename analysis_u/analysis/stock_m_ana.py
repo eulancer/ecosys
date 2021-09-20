@@ -6,11 +6,10 @@ import seaborn as sns
 import mplfinance as mpf
 import matplotlib.pyplot as plt
 
-from strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_pro_client
 
 # 正常显示画图时出现的中文和负号
 from pylab import mpl
-from pyecharts import Kline, Gauge, Bar
 
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 mpl.rcParams['axes.unicode_minus'] = False

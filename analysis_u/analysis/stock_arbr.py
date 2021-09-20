@@ -1,12 +1,11 @@
 # 先引入后面可能用到的包（package）
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import MultipleLocator
 from tqdm import tqdm
 # 引入TA-Lib库
 import talib as ta
-from strategy.tushare_util import get_pro_client
-from strategy.tushare_util import get_all_code_df
+from analysis_u.strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_all_code_df
 from datetime import datetime, timedelta
 from loguru import logger
 import matplotlib as mplab
@@ -101,7 +100,7 @@ def plot_arbr(code, df, n=120):
     # fig.suptitle(code+'matplotlib object-oriented')
 
     #  价格图
-    ax = fig.add_subplot(211)
+    ax = fig.add_subplot(211, sharex=True)
     ax.plot_date(df.index, df['close'], linestyle='-')
 
     dateFmt = mpl.dates.DateFormatter('%b')
@@ -115,14 +114,14 @@ def plot_arbr(code, df, n=120):
     ax.set(title=code + '价格走势')
 
     #  趋势
-    ax_arbr = fig.add_subplot(212)
+    ax_arbr = fig.add_subplot(212,sharex=True)
     ax_arbr.plot_date(df.index, df[['AR', 'BR']], linestyle='-')
 
     ax_arbr.set_title(code + 'ARBR')
     # 设置X轴时间间隔
-    ax_arbr.xaxis.set_minor_locator(weeksLoc)
-    ax_arbr.xaxis.set_major_locator(monthsLoc)
-    ax_arbr.xaxis.set_major_formatter(dateFmt)
+    #ax_arbr.xaxis.set_minor_locator(weeksLoc)
+    #ax_arbr.xaxis.set_major_locator(monthsLoc)
+    #ax_arbr.xaxis.set_major_formatter(dateFmt)
 
     plt.show()
 

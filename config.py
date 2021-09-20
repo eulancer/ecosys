@@ -13,7 +13,7 @@ db = 'stock_trade'
 user = 'root'
 password = ''
 unicode = 'utf8'
-Ne_path = 'D:/Work/git/ecosys/data/Ne.txt'
+Ne_path = '//Ne.txt'
 
 #  邮件名单
 email_list = ['lingssh@126.com', 'tokttt@gmail.com']

@@ -1,5 +1,5 @@
 from sklearn import svm
-from quant import DC
+from analysis_u.quant import DC
 
 
 # 机器学习暂时找不到应用场景

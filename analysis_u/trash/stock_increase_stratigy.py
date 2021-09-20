@@ -1,8 +1,5 @@
 import datetime
 import pandas as pd
-import timedelta
-import zmail
-from notices.stock_email import send_mail
 import config
 from collector.tushare_util import get_pro_client
 

@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from strategy.tushare_util import get_pro_client
+from analysis_u.strategy.tushare_util import get_pro_client
 import pandas as pd
 from datetime import datetime
 import time
@@ -70,7 +70,7 @@ def get_byRoe():
             pass
     print(stocks_p)
     ## 存数据
-    with open('D:/Work/git/ecosys/data/ROE25.txt', 'w') as f:
+    with open('//ROE25.txt', 'w') as f:
         for i in stocks_p:
             f.write(i)
     f.close()
