@@ -19,7 +19,7 @@ index = {'上证综指': '000001.SH', '深证成指': '399001.SZ',
          '上证50': '000016.SH', '中证500': '000905.SH',
          '中小板指': '399005.SZ', '上证180': '000010.SH'}
 
-
+'''
 # 获取当前交易的股票代码和名称
 def get_code():
     pro = get_pro_client()
@@ -27,9 +27,9 @@ def get_code():
     codes = df.ts_code.values
     names = df.name.values
     stock = dict(zip(names, codes))
-    stocks = dict(stock, **index)
+    stocks = dict(stock, index)
     return stocks
-
+'''
 
 # 默认设定时间周期为当前时间往前推120个交易日
 # 日期可以根据需要自己改动
@@ -100,7 +100,8 @@ def plot_arbr(code, df, n=120):
     # fig.suptitle(code+'matplotlib object-oriented')
 
     #  价格图
-    ax = fig.add_subplot(211, sharex=True)
+    # ax = fig.add_subplot(211, sharex=True)
+    ax = fig.add_subplot(211)
     ax.plot_date(df.index, df['close'], linestyle='-')
 
     dateFmt = mpl.dates.DateFormatter('%b')
@@ -114,14 +115,14 @@ def plot_arbr(code, df, n=120):
     ax.set(title=code + '价格走势')
 
     #  趋势
-    ax_arbr = fig.add_subplot(212,sharex=True)
+    ax_arbr = fig.add_subplot(212)
     ax_arbr.plot_date(df.index, df[['AR', 'BR']], linestyle='-')
 
     ax_arbr.set_title(code + 'ARBR')
     # 设置X轴时间间隔
-    #ax_arbr.xaxis.set_minor_locator(weeksLoc)
-    #ax_arbr.xaxis.set_major_locator(monthsLoc)
-    #ax_arbr.xaxis.set_major_formatter(dateFmt)
+    # ax_arbr.xaxis.set_minor_locator(weeksLoc)
+    # ax_arbr.xaxis.set_major_locator(monthsLoc)
+    # ax_arbr.xaxis.set_major_formatter(dateFmt)
 
     plt.show()
 
@@ -148,7 +149,7 @@ def main():
     print(stocks_result)
 
     # 存储数据
-    with open(r'ArBr单.txt', 'w', encoding='utf-8')as f:
+    with open(r'data\\ArBr单.txt', 'w', encoding='utf-8')as f:
         f.write('出现买入信号,BR<40,AR<60: 空方力量较强，但随时可能反转上涨，考虑买进\n')
         stocks_result.to_csv(f, index=False)
     f.close()

@@ -30,6 +30,7 @@ def get_all_code():
     stock = dict(zip(names, codes))
     return stock
 
+
 # 获取 代码、名称的dataframe
 def get_all_code_df():
     pro = get_pro_client()
@@ -61,6 +62,7 @@ def get_Ne_code():
     stock = dict(zip(names, codes))
     # print(stock)
     return stock
+
 
 # 获取去重的股票
 def get_stock_list():
