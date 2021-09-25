@@ -4,7 +4,7 @@
 - 按照PBPE
 - 按照ROE
 
-安装ta-lib的方法
+**安装ta-lib的方法**
 
 ta-lib不能直接用pip install ta-lib的方式进行安装，需要下载whl文件，然后pip install xxx.whl的方式进行安装
 确认自己的python的版本，比如我本地安装的是python3.8

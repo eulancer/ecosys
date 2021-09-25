@@ -5,7 +5,7 @@ import analysis_u.strategy.tushare_util as util
 from loguru import logger
 
 
-@allure.feature('全部用户列表所有筛选项一起查询')
+@allure.feature('全部用户列表所有筛选项一起查询1')
 def test_get_pro_client():
     # 初始化
     pro = util.get_pro_client()
@@ -14,10 +14,11 @@ def test_get_pro_client():
     assert pro.empty != False
 
 
-
 @allure.feature('全部用户列表所有筛选项一起查询2')
+@allure.story('子功能名称')
 def test_get_all_code_df():
     # 初始化
+
     pro = util.get_pro_client()
     # df = pro.get_all_code_df()
     # print(df)
