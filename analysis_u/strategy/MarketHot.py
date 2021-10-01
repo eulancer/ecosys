@@ -41,20 +41,25 @@ def limit_list(trade_date):
     df_up = df[df.up_limit == df.close]
     # 重置索引，新增ts_code列
     df_up['ts_code'] = df_up.index.tolist()
-    """
+   
     df = pd.merge(limit_df, daily_df, how='inner', on=['ts_code', 'trade_date'])
     df_up = df[df.up_limit == df.close]
     df_up.index = range(len(df_up))
     print("涨停股个数")
     print(df_up.shape[0])
 
-    """
     同理，可以获取跌停股票清单
     df_down = df[df.up_limit == df.close]
     print("跌停股个数")
     print(df_down.shape[0])
     """
-    return df_up
+
+    # 通过limit_list获取股票
+    limit_df = pro.limit_list(trade_date=today)
+    print("涨停停股个数")
+    print(limit_df[(limit_df.limit == 'U')].shape[0])
+
+    return limit_df
 
 
 #  获取当前更新股市概念清单，用户快速概念对应的股票，股票对应的概念，分析相关的信息
@@ -150,6 +155,8 @@ def get_total_concept_strength(today, concept_list):
     # 涨停榜
     limit_df = limit_list(trade_date=today)
 
+    # limit_up_df = limit_df[(limit_df.limit == 'U') & (limit_df.name.str.contains('ST') == False)]
+
     #  概念代码、代码概念、概念清单
     # concept_list = get_concept(today)
     concept2code_dict = concept_list[0]
@@ -168,9 +175,10 @@ def get_total_concept_strength(today, concept_list):
         # 与当天的日线行情表合并
         temp1 = pd.merge(code_df, hq_df, how='left', on='ts_code')
 
-        ## ~~~~~~~~~~后续还要去除ST股票
-        limitup_df = pd.merge(limit_df, code_df, how='inner', on='ts_code')
-        ## 求出该板块涨停股票数
+        # 后续还要去除ST股票
+        limitup_df = pd.merge(limit_df[(limit_df.limit == 'U') & (limit_df.name.str.contains('ST') == False)], code_df,
+                              how='inner', on='ts_code')
+        # 求出该板块涨停股票数
         limitup_num = len(limitup_df)
 
         if limitup_num > 0:
@@ -184,16 +192,21 @@ def get_total_concept_strength(today, concept_list):
         if limitup_num >= 3:
             # 如果该板块涨停数大于3，取封板时间前3的股票作为龙一龙二龙三
             # 缺失开始涨停时间，暂时取得前3个股票的时间，后续可以优化
-            dragon_list = limitup_df.ts_code.head(3).to_list()
+            # dragon_list = limitup_df.ts_code.head(3).to_list()
+
+            dragon_list = limitup_df.sort_values(by='first_time').ts_code.head(3).to_list()
             print("涨停大于3个的版本龙头股票")
             print(dragon_list)
         else:
             # 如果该板块涨停数小于3，取涨停的股票和涨停股票之外最高涨幅的共3只股票作为龙一龙二龙三
-            dragon_list = limitup_df["ts_code"].to_list()
+            # dragon_list = limitup_df["ts_code"].to_list()
+            dragon_list = limitup_df.sort_values(by='first_time').ts_code.to_list()
             nolimitup_dragon_num = 3 - limitup_num
-            nolimitup_df = temp1[~temp1["ts_code"].isin(limitup_df.ts_code)]
+            nolimitup_df_temp = temp1[~temp1["ts_code"].isin(limitup_df.ts_code)]
             # 按照涨幅对非涨停板的股票排序，
-            ## 昨天的数据可能这里有问题
+
+            ## 昨天的数据可能这里有问题,直接使用会导致错误
+            nolimitup_df = nolimitup_df_temp.copy()
             nolimitup_df.sort_values("pct_chg", inplace=True)
             dragon_list += nolimitup_df.ts_code.head(nolimitup_dragon_num).to_list()
             # print("涨停小于3个的版本龙头股票")
@@ -274,70 +287,6 @@ def get_sta(concept_list, limit_up_df):
     print(res_df.sort_values('涨停数', ascending=False).head(20))
 
 
-def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
-    pro = get_pro_client()
-
-    concept_name_dict = concept_list[2]
-    concept2code_dict = concept_list[0]
-
-    da_trade = pro.trade_cal(start_date=start_date, end_date=end_date, is_open=1)  # 获取交易日期
-
-    x_data = da_trade["cal_date"].values
-    # x_data = ['20210906', '20210907', '20210908', '20210909', '20210910']
-    y_data_dict = {}
-
-    print("开始趋势展示")
-    concept_code_list = concept_code_list
-    # concept_code_list = ['TS4', 'TS35']  # 军工 光伏
-    for code in tqdm(concept_code_list):
-        y_data_dict[concept_name_dict[code]] = []
-    for trade_date in tqdm(x_data):
-        hq_df = pro.daily(trade_date=trade_date)
-        try:
-            limit_price_df = pro.stk_limit(**{
-                "ts_code": "",
-                "trade_date": trade_date,
-                "start_date": "",
-                "end_date": "",
-                "offset": "",
-                "limit": ""
-            }, fields=[
-                "trade_date",
-                "ts_code",
-                "up_limit",
-                "down_limit"
-            ])
-        except Exception as re:
-            print(re)
-        hq_df = pd.merge(hq_df, limit_price_df, how='inner', on=['ts_code', 'trade_date'])
-        limit_up_df = hq_df[hq_df.close == hq_df.up_limit]
-        for code in concept_code_list:
-            y_data_dict[concept_name_dict[code]].append(
-                len(limit_up_df[limit_up_df.ts_code.isin(concept2code_dict[code])])
-            )
-
-    plot_name = '板块涨停可视化'
-    line = Line().add_xaxis(xaxis_data=x_data)
-    for k, v in y_data_dict.items():
-        line.add_yaxis(
-            series_name=k,
-            y_axis=v,
-            label_opts=opts.LabelOpts(is_show=False),
-        )
-
-    line.set_global_opts(
-        title_opts=opts.TitleOpts(title=plot_name),
-        tooltip_opts=opts.TooltipOpts(trigger="axis"),
-        yaxis_opts=opts.AxisOpts(
-            type_="value",
-            axistick_opts=opts.AxisTickOpts(is_show=True),
-            splitline_opts=opts.SplitLineOpts(is_show=True),
-        ),
-        xaxis_opts=opts.AxisOpts(type_="category", boundary_gap=False),
-    ).render_notebook()
-    line.render()
-
-
 # today 时间，例：20210808
 # concept_list 嵌套的字段
 def get_Market_result(today, concept_list):
@@ -374,7 +323,8 @@ def get_Market_result(today, concept_list):
     print(hq_df)
 
     # 查看概念强度前20个股
-    strength_head20 = hq_df.sort_values(by='strength', ascending=False).head(20)
+    strength_head20 = hq_df.copy()
+    strength_head20 = strength_head20.sort_values(by='strength', ascending=False).head(20)
     strength_head20['concept'] = strength_head20.ts_code.apply(get_concept_name_list)
     print('查看概念强度前20个股')
     print(strength_head20.loc[:, ['ts_code', 'trade_date', 'pct_chg', 'strength', 'concept']])
@@ -386,17 +336,95 @@ def get_Market_result(today, concept_list):
     print(next_day_hq.loc[:, ['ts_code', 'trade_date', 'pct_chg']])
 
 
+def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
+    pro = get_pro_client()
+
+    concept_name_dict = concept_list[2]
+    concept2code_dict = concept_list[0]
+
+    da_trade = pro.trade_cal(start_date=start_date, end_date=end_date, is_open=1)  # 获取交易日期
+
+    x_data = da_trade["cal_date"].values
+    # x_data = ['20210906', '20210907', '20210908', '20210909', '20210910']
+    y_data_dict = {}
+
+    print("开始趋势展示")
+    concept_code_list = concept_code_list
+    # concept_code_list = ['TS4', 'TS35']  # 军工 光伏
+    for code in tqdm(concept_code_list):
+        y_data_dict[concept_name_dict[code]] = []
+    for trade_date in tqdm(x_data):
+        hq_df = pro.daily(trade_date=trade_date)
+        limit_price_df = pro.limit_list(trade_date=trade_date)
+        """
+        try:
+            limit_price_df = pro.limit_list(**{
+                "ts_code": "",
+                "trade_date": trade_date,
+                "start_date": "",
+                "end_date": "",
+                "offset": "",
+                "limit": ""
+            }, fields=[
+                "trade_date",
+                "ts_code",
+                "up_limit",
+                "down_limit"
+            ])
+        except Exception as re:
+            print(re)
+        """
+        hq_df = pd.merge(hq_df, limit_price_df, how='inner', on=['ts_code', 'trade_date'])
+        limit_up_df = hq_df[hq_df.limit == "U"]
+
+        for code in concept_code_list:
+            y_data_dict[concept_name_dict[code]].append(
+                len(limit_up_df[limit_up_df.ts_code.isin(concept2code_dict[code])])
+            )
+
+    plot_name = '板块涨停可视化'
+    line = Line("900px", "1200px")
+    line().add_xaxis(xaxis_data=x_data)
+    # line.width = 120
+    #
+    for k, v in y_data_dict.items():
+        line.add_yaxis(
+            series_name=k,
+            y_axis=v,
+            label_opts=opts.LabelOpts(is_show=False),
+        )
+
+    line.set_global_opts(
+        title_opts=opts.TitleOpts(title=plot_name),
+        tooltip_opts=opts.TooltipOpts(trigger="axis"),
+        yaxis_opts=opts.AxisOpts(
+            type_="value",
+            axistick_opts=opts.AxisTickOpts(is_show=True),
+            splitline_opts=opts.SplitLineOpts(is_show=True),
+        ),
+        xaxis_opts=opts.AxisOpts(type_="category", boundary_gap=False),
+    ).render_notebook()
+    line.render()
+
+
 def main():
-    today = '20210917'  # 指定的日期
+    today = '20210930'  # 指定的日期
+
     concept_list = get_concept(today)  # 概念清单(为了避免多次调用接口，所以采用传参的方式)
     # 指定日期市场强度分析
-    get_Market_result(today, concept_list)
-
+    """ 
+    get_Market_result(today, concept_list)     
+    """
     # 获取概念的趋势
+    concept_strength_df = get_total_concept_strength(today, concept_list)
+    print(concept_strength_df)
+    concept_strength_df_top20 = concept_strength_df.sort_values(by='strength', ascending=False).head(6)
+
+    concept_code_list_top20 = concept_strength_df_top20.code.tolist()
     start_date = 20210801  # 板块股票分析时间及结束时间
     end_date = datetime.datetime.now().strftime('%Y%m%d')
     concept_code_list = ['TS4', 'TS35']  # 军工 光伏
-    get_concept_trend(start_date, end_date, concept_list, concept_code_list)
+    get_concept_trend(start_date, today, concept_list, concept_code_list_top20)
 
 
 if __name__ == "__main__":
