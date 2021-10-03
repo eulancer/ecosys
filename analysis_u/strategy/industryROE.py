@@ -3,7 +3,11 @@ from tqdm import tqdm
 from analysis_u.strategy.tushare_util import get_pro_client
 import pandas as pd
 import numpy as np
+from loguru import logger
 
+pd.set_option('display.max_columns', 1000)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_colwidth', 1000)
 """
 使用投资人常用的几个指标，总营业额，扣非净利润，ROE，负债比，现金流，毛利率。
 并且试图把这些指标集中到一个表格当中，其中有些数据是需要自己计算的。这样就能清晰直观地看出公司的增长情况
@@ -15,7 +19,8 @@ edate = '20211231'
 this_year = 2021
 next_year_of_start_year = 2014
 period = '20201230'
-n = 7
+# 结束时间减去开始时间
+n = 8
 
 
 # 获取资产负宅表
@@ -39,7 +44,7 @@ def get_balance_sheet(code):
     df['index'] = range(0, n)
     df = df.set_index('index')
     # 接口调用次数限制限制
-    time.sleep(2)
+    #time.sleep(2)
     return df
 
 
@@ -113,6 +118,7 @@ def get_cash(code):
     return cash
 
 
+@logger.catch()
 def get_Roe(code):
     df = get_balance_sheet(code)
     cash = get_cash(code)
@@ -120,7 +126,7 @@ def get_Roe(code):
     ining = get_income(code)
     data = pd.DataFrame({'Year': np.zeros(n),
                          'Revenue': np.zeros(n),
-                         'Growth rate of revenue ': np.zeros(n),
+                         'Growth rate of revenue': np.zeros(n),
                          'profit_dedt': np.zeros(n),
                          'Growth rate of profit_dedt': np.zeros(n),
                          'Grossprofit_margin': np.zeros(n),
@@ -133,9 +139,11 @@ def get_Roe(code):
     for i in tqdm(range(next_year_of_start_year - 1, this_year)):
         data['Year'][j] = i
         data['Revenue'][j] = ining['total_revenue'][j]
+        #print(data)
         if j == 0:
             pass
         else:
+            #print(j)
             data['Growth rate of revenue'][j] = (data['Revenue'][j] - data['Revenue'][j - 1]) / data['Revenue'][j - 1]
         data['profit_dedt'][j] = fina['profit_dedt'][j]
         if j == 0:

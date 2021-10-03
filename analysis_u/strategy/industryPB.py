@@ -84,7 +84,7 @@ def get_PB(code, trade_date):
 
 
 def main():
-    trade_date = '20210913'
+    trade_date = '20210930'
     # 构建各行业的最低值矩阵
     IndustryPE = {'行业': ['银行', '保险', '证券'],
                   '最低PB': [0.8, 0.8, 1.2]}

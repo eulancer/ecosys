@@ -1,5 +1,5 @@
 from tqdm import tqdm
-
+from loguru import logger
 from analysis_u.strategy.tushare_util import get_pro_client
 import pandas as pd
 from datetime import datetime
@@ -37,7 +37,7 @@ def get_fina_indicator(ts_code):
     except:
         pass
     # 接口调用次数限制限制
-    time.sleep(2)
+    time.sleep(1)
     return fina
 
 
@@ -45,7 +45,7 @@ def get_byRoe():
     stock_code = get_all_code()
     stocks_p = []
     num = 0
-    for code in tqdm(stock_code['ts_code'].values):
+    for code in tqdm(stock_code['ts_code'].values.tolist()):
         Roe = get_fina_indicator(code)
         # print(ROE['roe'])
         RoeState = 1
@@ -63,12 +63,13 @@ def get_byRoe():
                 break
         if RoeState == 1:
             print("符合条件股票代码")
-            name = stock_code[stock_code['ts_code'] == code]['name']
-            print(str(code)+"~~"+str(name))
+            name = stock_code[stock_code['ts_code'] == code]['name'].values
+            print(code + "~~"+name)
+            # print("~~")
             stocks_p.append(code)
         else:
             pass
-    print(stocks_p)
+    # print(stocks_p)
     ## 存数据
     with open('//ROE25.txt', 'w') as f:
         for i in stocks_p:

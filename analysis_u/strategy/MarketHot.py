@@ -7,7 +7,7 @@ from tqdm import tqdm
 import json
 from pyecharts.charts import Line
 import pyecharts.options as opts
-
+from loguru import logger
 """
 避免打印时出现省略号
 """
@@ -383,8 +383,8 @@ def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
             )
 
     plot_name = '板块涨停可视化'
-    line = Line("900px", "1200px")
-    line().add_xaxis(xaxis_data=x_data)
+    # line = Line("900px", "1200px")
+    line = Line().add_xaxis(xaxis_data=x_data)
     # line.width = 120
     #
     for k, v in y_data_dict.items():
@@ -407,6 +407,24 @@ def get_concept_trend(start_date, end_date, concept_list, concept_code_list):
     line.render()
 
 
+def get_concept_trend_top10(start_date, end_date, concept_list):
+    concept_strength_df = get_total_concept_strength(end_date, concept_list)
+    concept_strength_df_top20 = concept_strength_df.sort_values(by='strength', ascending=False).head(6)
+    concept_code_list_top20 = concept_strength_df_top20.code.tolist()
+    get_concept_trend(start_date, end_date, concept_list, concept_code_list_top20)
+
+
+# 如何获取龙头股，概念不清晰
+def get_concept_stock_by_tm(trade_date):
+    pro = get_pro_client()
+    # 获取股票清单
+    df_TS = pro.concept_detail(id='TS2', fields='ts_code,name')
+    df = pro.daily_basic(trade_date=trade_date)
+    concept_stock = pd.merge(df_TS, df, how='inner', on='ts_code')
+    concept_stock.sort_values(by='total_mv', ascending=True)
+    print(concept_stock.head(3))
+
+
 def main():
     today = '20210930'  # 指定的日期
 
@@ -415,16 +433,10 @@ def main():
     """ 
     get_Market_result(today, concept_list)     
     """
-    # 获取概念的趋势
-    concept_strength_df = get_total_concept_strength(today, concept_list)
-    print(concept_strength_df)
-    concept_strength_df_top20 = concept_strength_df.sort_values(by='strength', ascending=False).head(6)
-
-    concept_code_list_top20 = concept_strength_df_top20.code.tolist()
     start_date = 20210801  # 板块股票分析时间及结束时间
-    end_date = datetime.datetime.now().strftime('%Y%m%d')
-    concept_code_list = ['TS4', 'TS35']  # 军工 光伏
-    get_concept_trend(start_date, today, concept_list, concept_code_list_top20)
+    # end_date = datetime.datetime.now().strftime('%Y%m%d')
+    # concept_code_list = ['TS4', 'TS35']  # 军工 光伏
+    get_concept_trend_top10(start_date, today, concept_list)
 
 
 if __name__ == "__main__":
