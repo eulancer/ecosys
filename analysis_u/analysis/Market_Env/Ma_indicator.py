@@ -25,9 +25,18 @@ from matplotlib.ticker import AutoMinorLocator, MultipleLocator, FuncFormatter
 """
 避免打印时出现省略号
 """
+mpl.rcParams["font.sans-serif"] = ["FangSong"]
 pd.set_option('display.max_columns', 1000)
 pd.set_option('display.width', 1000)
 pd.set_option('display.max_colwidth', 1000)
+
+"""
+    参数数据与
+    types = [1, 2]  # 1 为指数 '2 为股票
+    ts_code = '300683.SZ'
+    start_date = '20200201'
+    end_date = '20210930'
+"""
 
 
 @logger.catch()
@@ -51,6 +60,7 @@ def MA60120_index(ts_code, start_date, end_date, types):
 
     fig, axs = plt.subplots(2, dpi=80, figsize=(12, 7.5))
 
+    # MA60 和Ma120 曲线
     axs[0].plot(data.index, data[['close', 'ma60', 'ma120']])
     axs[0].set_ylabel('point')
     # 填充
@@ -62,8 +72,9 @@ def MA60120_index(ts_code, start_date, end_date, types):
                         alpha=0.5)
     axs[0].legend(data[['close', 'ma60', 'ma120']], loc=4, ncol=1)
     axs[0].set_xticklabels(data.index, rotation=0)
-    axs[0].set(title='MA60~MA120')
+    axs[0].set(title='MA60~MA120---' + ts_code)
 
+    #  设置时间刻度，月度
     monthsLoc = mpl.dates.MonthLocator()
     weeksLoc = mpl.dates.WeekdayLocator()
 
@@ -71,8 +82,12 @@ def MA60120_index(ts_code, start_date, end_date, types):
 
     monthsFmt = mpl.dates.DateFormatter('%Y-%m')
     axs[0].xaxis.set_major_formatter(monthsFmt)
+
+    axs[0].spines['right'].set_color("none")
+    axs[0].spines['top'].set_color("none")
     axs[0].grid()
 
+    # SAR 曲线绘制
     axs[1].plot(data.index, data[['close', 'SAR']])
     axs[1].set(title='SAR')
 
@@ -80,22 +95,21 @@ def MA60120_index(ts_code, start_date, end_date, types):
     axs[1].set_xticklabels(data.index, rotation=0)
     axs[1].xaxis.set_major_formatter(monthsFmt)
     axs[1].legend(data[['close', 'SAR']], loc=4, ncol=1)
+    axs[1].spines['right'].set_color("none")
+    axs[1].spines['top'].set_color("none")
     axs[1].grid()
-    # fig.suptitle('matplotlib object-oriented', fontsize=10)
+    # fig.autofmt_xdate()
 
     print(data)
     plt.show()
 
 
 def main():
-    types = [1, 2]
-    # 1 为指数
-    # 2 为股票
-    print(types[0])
-    ts_code = '000001.SH'
+    types = [1, 2] # 1 为指数； 2 为股票
+    ts_code = '300683.SZ'
     start_date = '20200201'
     end_date = '20210930'
-    MA60120_index(ts_code, start_date, end_date, types[0])
+    MA60120_index(ts_code, start_date, end_date, types[1])
 
 
 if __name__ == "__main__":

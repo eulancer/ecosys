@@ -58,7 +58,8 @@ class estimate_market():
             lineEdit.append('<font color=\"#CD5C5C\">Tips</font>:此时处于A类行情，最容易获利，一般为主升浪或者说波浪理论中的3浪')
         if (df['dif'][last_index] > 0) & (df['hist'][last_index] < 0):
             lineEdit.append(
-                '<font color=\"#CD5C5C\">Tips</font>:此时处于B类行情，可以持股，处于调整之中但可以持股待涨，中长期多头中的短线空头，一般为上升浪之后的回调，是波浪理论中的某级别第2浪或第4浪')
+                '<font color=\"#CD5C5C\">Tips</font>:此时处于B类行情，可以持股，处于调整之中但可以持股待涨，中长期多头中的短线空头，一般为上升浪之后的回调，是波浪理论中的某级别第2'
+                '浪或第4浪')
         if (df['dif'][last_index] < 0) & (df['hist'][last_index] < 0):
             lineEdit.append('<font color=\"#CD5C5C\">Tips</font>:此时处于C类行情，最差的，是中长期空头与中短期空头，一般为主跌浪或者说C浪中的下跌')
         if (df['dif'][last_index] < 0) & (df['hist'][last_index] > 0):
