@@ -182,7 +182,8 @@ def main():
         returns,
         positions=positions,
         transactions=transactions,
-        live_start_date='2019-05-01')
+        live_start_date='2019-06-02')
+
     returns.index = returns.index.tz_convert(None)  # pyfoliozer获取数据
     quantstats.reports.full(returns)
     quantstats.reports.html(returns, output='quantstats.html', title='Stock Sentiment')
