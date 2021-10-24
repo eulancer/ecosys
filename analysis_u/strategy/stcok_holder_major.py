@@ -32,12 +32,12 @@ def get_all_stock(ann_date, percent):
     print(stocks_p)
     with open('//holder70.txt', 'w') as f:
         for i in stocks_p:
-            f.write(i)
+            f.write(i+'\n')
     f.close()
 
 
 def main():
-    ann_date = '20210831'
+    ann_date = '20211031'
     percent = 70
     get_all_stock(ann_date, percent)
 

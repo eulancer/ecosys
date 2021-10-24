@@ -5,10 +5,12 @@ from time import mktime
 from datetime import datetime
 from datetime import timedelta
 import pandas as pd
+from loguru import logger
 
 
 # 公告发布时间，end_date
 # 例如，20210331、20210631、20210931
+@logger.catch()
 def get_stock_list(End_dates):
     pro = get_pro_client()
     # 时间参数
@@ -20,7 +22,7 @@ def get_stock_list(End_dates):
     start_date = (End_date + timedelta(days=-60)).strftime("%Y%m%d")
     print(start_date)
     # 当上一季度的时间范围
-    end_date_before = (End_date + timedelta(days=-120)).strftime("%Y%m%d")
+    end_date_before = (End_date + timedelta(days=-121)).strftime("%Y%m%d")
     start_date_before = (End_date + timedelta(days=-150)).strftime("%Y%m%d")
     End_date = End_date.strftime("%Y%m%d")
     # 最新的指标数据
@@ -51,9 +53,10 @@ def get_stock_list(End_dates):
     # print(df_stock_list)
     # 合并本季度、上季度股东数及当日指标
     df_stock_b = pd.merge(df_stock, df_stock_list, how='inner', on='ts_code')
-
+    #print(df_stock_b)
     # 筛选股票市值、股东数量，并计算股东下降比例，选择下降比例大于15%
-    df_stock_c = df_stock_b[(df_stock_b['total_mv'] <= 20000000) & (df_stock_b['holder_num'] <= 40000)]
+    df_stock_c = df_stock_b[df_stock_b['holder_num'] <= 40000]
+    # df_stock_c = df_stock_b[(df_stock_b['total_mv'] <= 200) & (df_stock_b['holder_num'] <= 40000)]
     df_stock_c['hold_percent_down'] = df_stock_c.apply(
         lambda x: round((x['holder_num_b'] - x['holder_num']) / x['holder_num_b'], 4), axis=1)
     df_stock_c['total_mv'] = df_stock_c.apply(
@@ -68,8 +71,8 @@ def get_stock_list(End_dates):
     stock_result = stock_result.reset_index(drop=True)
 
     # 写入文件
-    with open(r'股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单.txt', 'w', encoding='utf-8')as f:
-        f.write('股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单\n')
+    with open(r'股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单.csv', 'w', encoding='utf-8')as f:
+        #f.write('股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单~\n')
         stock_result.to_csv(f, index=False)
     f.close()
     print(stock_result)
@@ -78,7 +81,7 @@ def get_stock_list(End_dates):
 
 
 if __name__ == "__main__":
-    end_date = '20210930'
+    end_date = '20211024'
     get_stock_list(end_date)
 
     """
