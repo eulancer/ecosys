@@ -22,7 +22,7 @@ def get_stock_list(End_dates):
     start_date = (End_date + timedelta(days=-60)).strftime("%Y%m%d")
     print(start_date)
     # 当上一季度的时间范围
-    end_date_before = (End_date + timedelta(days=-121)).strftime("%Y%m%d")
+    end_date_before = (End_date + timedelta(days=-90)).strftime("%Y%m%d")
     start_date_before = (End_date + timedelta(days=-150)).strftime("%Y%m%d")
     End_date = End_date.strftime("%Y%m%d")
     # 最新的指标数据
@@ -81,7 +81,7 @@ def get_stock_list(End_dates):
 
 
 if __name__ == "__main__":
-    end_date = '20211024'
+    end_date = '20211031'
     get_stock_list(end_date)
 
     """
