@@ -71,8 +71,8 @@ def get_stock_list(End_dates):
     stock_result = stock_result.reset_index(drop=True)
 
     # 写入文件
-    with open(r'股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单.csv', 'w', encoding='utf-8')as f:
-        #f.write('股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单~\n')
+    with open(r'股东小于4万股东下降了15%以上非新股非ST名单.csv', 'w', encoding='utf-8')as f:
+        #f.write('股东小于4万市值股东下降了15%以上非新股非ST名单~\n')
         stock_result.to_csv(f, index=False)
     f.close()
     print(stock_result)
