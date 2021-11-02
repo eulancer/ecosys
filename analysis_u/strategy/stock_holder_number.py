@@ -81,7 +81,7 @@ def get_stock_list(End_dates):
 
 
 if __name__ == "__main__":
-    end_date = '20211031'
+    end_date = '20211101'
     get_stock_list(end_date)
 
     """

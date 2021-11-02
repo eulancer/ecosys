@@ -17,6 +17,23 @@ pd.set_option('display.max_colwidth', 1000)
 """
 
 
+class Deal:
+    def __init__(self, cur_capital):
+        self.cur_capital = cur_capital
+        self.stock_buy = pd.DataFrame(columns=['ts_code', 'buy_price', 'buy_num', 'day'])
+        self.stock_sell = pd.DataFrame()
+
+        print("")
+
+    def buy(self, price, stock):
+        self.cur_capital -= price
+        print("")
+
+    def sell(self, price,stock):
+        self.cur_capital += price
+        print("")
+
+
 # 选股函数
 
 @logger.catch()
