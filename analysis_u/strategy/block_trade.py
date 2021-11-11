@@ -16,7 +16,7 @@ pd.set_option('display.max_colwidth', 1000)
 
 def main():
     pro = get_pro_client()
-    today = 20211101
+    today = 20211111
     """
     today = datetime.datetime.now().strftime('%Y%m%d')
 
@@ -37,12 +37,17 @@ def main():
     print(df_result)
 
     df_result_stock = df_result[df_result['price'] > df_result['close']]
+    df_result_stock = df_result_stock.copy()
     df_result_stock.sort_values(by='amount_x', ascending=False, inplace=True)
     print(df_result_stock[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close', 'buyer']])
 
     df_result_O = df_result[df_result['buyer'] == '机构专用']
     df_result_O.sort_values(by='amount_x', ascending=False, inplace=True)
     print(df_result_O[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close', 'buyer']])
+
+    df_result_1 = df_result[df_result['price'] > df_result['close']]
+    df_result_1.sort_values(by='amount_x', ascending=False, inplace=True)
+    print(df_result_1[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close',  'buyer']])
 
 
 if __name__ == "__main__":
