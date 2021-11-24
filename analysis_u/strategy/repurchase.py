@@ -1,6 +1,7 @@
 import datetime
 from analysis_u.strategy.tushare_util import get_pro_client
 import pandas as pd
+from loguru import logger
 
 """
 避免打印时出现省略号
@@ -14,9 +15,10 @@ pd.set_option('display.max_colwidth', 1000)
 """
 
 
+@logger.catch()
 def main():
     pro = get_pro_client()
-    today = 20211022
+    today = 20211102
     """
     today = datetime.datetime.now().strftime('%Y%m%d')
 
@@ -27,18 +29,11 @@ def main():
         today = (today + datetime.timedelta(days=-1)).strftime('%Y%m%d')
     """
 
-    df_block = pro.block_trade(trade_date=today)
-    df_block.sort_values(by='amount', ascending=False, inplace=True)
-    # print(df_block)
-
-    df_daily = df = pro.daily(trade_date=today)
-
-    df_result = pd.merge(df_block, df_daily, how='left', on=['ts_code', 'trade_date'])
-    print(df_result)
-
-    df_result_stock = df_result[df_result['price'] >= df_result['close']]
-    df_result_stock.sort_values(by=['ts_code', 'amount_x'], ascending=(False, False), inplace=True)
-    print(df_result_stock[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close', 'buyer']])
+    Repurchase = pro.repurchase(ann_date=today)
+    Repurchase_result = Repurchase[Repurchase['proc'] == '预案']
+    Repurchase_result = Repurchase_result.copy()
+    Repurchase_result.sort_values(by='amount', ascending=False, inplace=True)
+    print(Repurchase_result)
 
 
 if __name__ == "__main__":

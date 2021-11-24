@@ -22,7 +22,7 @@ def get_stock_list(End_dates):
     start_date = (End_date + timedelta(days=-60)).strftime("%Y%m%d")
     print(start_date)
     # 当上一季度的时间范围
-    end_date_before = (End_date + timedelta(days=-121)).strftime("%Y%m%d")
+    end_date_before = (End_date + timedelta(days=-90)).strftime("%Y%m%d")
     start_date_before = (End_date + timedelta(days=-150)).strftime("%Y%m%d")
     End_date = End_date.strftime("%Y%m%d")
     # 最新的指标数据
@@ -71,8 +71,8 @@ def get_stock_list(End_dates):
     stock_result = stock_result.reset_index(drop=True)
 
     # 写入文件
-    with open(r'股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单.csv', 'w', encoding='utf-8')as f:
-        #f.write('股东小于4万市值小于200亿股东下降了15%以上非新股非ST名单~\n')
+    with open(r'股东小于4万股东下降了15%以上非新股非ST名单.csv', 'w', encoding='utf-8')as f:
+        #f.write('股东小于4万市值股东下降了15%以上非新股非ST名单~\n')
         stock_result.to_csv(f, index=False)
     f.close()
     print(stock_result)
@@ -81,7 +81,7 @@ def get_stock_list(End_dates):
 
 
 if __name__ == "__main__":
-    end_date = '20211024'
+    end_date = '20211101'
     get_stock_list(end_date)
 
     """
