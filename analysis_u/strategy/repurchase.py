@@ -18,7 +18,7 @@ pd.set_option('display.max_colwidth', 1000)
 @logger.catch()
 def main():
     pro = get_pro_client()
-    today = 20211102
+    today = 20211223
     """
     today = datetime.datetime.now().strftime('%Y%m%d')
 
@@ -30,6 +30,7 @@ def main():
     """
 
     Repurchase = pro.repurchase(ann_date=today)
+    print(Repurchase)
     Repurchase_result = Repurchase[Repurchase['proc'] == '预案']
     Repurchase_result = Repurchase_result.copy()
     Repurchase_result.sort_values(by='amount', ascending=False, inplace=True)
