@@ -1,0 +1,81 @@
+Index: analysis_u/strategy/block_trade.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import datetime\r\nfrom analysis_u.strategy.tushare_util import get_pro_client\r\nimport pandas as pd\r\n\r\n\"\"\"\r\n避免打印时出现省略号\r\n\"\"\"\r\npd.set_option('display.max_columns', 1000)\r\npd.set_option('display.width', 1000)\r\npd.set_option('display.max_colwidth', 1000)\r\n\r\n\"\"\"\r\n# 获取最近交易日当日大宗交易数据\r\n\"\"\"\r\n\r\n\r\ndef main():\r\n    pro = get_pro_client()\r\n    today = 20211122\r\n    \"\"\"\r\n    today = datetime.datetime.now().strftime('%Y%m%d')\r\n\r\n    # 获取交易数据\r\n    trade_cal = pro.trade_cal()\r\n    while today not in trade_cal[trade_cal['is_open'] == 1]['cal_date'].values:\r\n        today = datetime.datetime.strptime(today, '%Y%m%d').date()\r\n        today = (today + datetime.timedelta(days=-1)).strftime('%Y%m%d')\r\n    \"\"\"\r\n\r\n    df_block = pro.block_trade(trade_date=today)\r\n    df_block.sort_values(by='amount', ascending=False, inplace=True)\r\n    print(df_block)\r\n\r\n    df_daily = pro.daily(trade_date=today)\r\n    print(df_daily)\r\n    df_result = pd.merge(df_block, df_daily, how='left', on=['ts_code', 'trade_date'])\r\n    print(df_result)\r\n\r\n    df_result_stock = df_result[df_result['price'] > df_result['close']]\r\n    df_result_stock = df_result_stock.copy()\r\n    df_result_stock.sort_values(by='amount_x', ascending=False, inplace=True)\r\n    print(df_result_stock[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close', 'buyer']])\r\n\r\n    df_result_O = df_result[df_result['buyer'] == '机构专用']\r\n    df_result_O.sort_values(by='amount_x', ascending=False, inplace=True)\r\n    print(df_result_O[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close', 'buyer']])\r\n\r\n    df_result_1 = df_result[df_result['price'] > df_result['close']]\r\n    df_result_1.sort_values(by='amount_x', ascending=False, inplace=True)\r\n    print(df_result_1[['ts_code', 'trade_date', 'price', 'vol_x', 'amount_x', 'close',  'buyer']])\r\n\r\n\r\nif __name__ == \"__main__\":\r\n    main()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/analysis_u/strategy/block_trade.py b/analysis_u/strategy/block_trade.py
+--- a/analysis_u/strategy/block_trade.py	(revision 547ac4cce01418c14f341c6f7d9db4b10f8281fa)
++++ b/analysis_u/strategy/block_trade.py	(date 1646096330209)
+@@ -16,7 +16,7 @@
+ 
+ def main():
+     pro = get_pro_client()
+-    today = 20211122
++    today = 20220228
+     """
+     today = datetime.datetime.now().strftime('%Y%m%d')
+ 
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"JavaScriptSettings\">\r\n    <option name=\"languageLevel\" value=\"ES6\" />\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.7\" project-jdk-type=\"Python SDK\" />\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 547ac4cce01418c14f341c6f7d9db4b10f8281fa)
++++ b/.idea/misc.xml	(date 1645353816121)
+@@ -3,5 +3,5 @@
+   <component name="JavaScriptSettings">
+     <option name="languageLevel" value="ES6" />
+   </component>
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.7" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/Ushare.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module type=\"PYTHON_MODULE\" version=\"4\">\r\n  <component name=\"NewModuleRootManager\">\r\n    <content url=\"file://$MODULE_DIR$\">\r\n      <sourceFolder url=\"file://$MODULE_DIR$/data\" isTestSource=\"false\" />\r\n      <excludeFolder url=\"file://$MODULE_DIR$/venv\" />\r\n    </content>\r\n    <orderEntry type=\"jdk\" jdkName=\"Python 3.7\" jdkType=\"Python SDK\" />\r\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\r\n  </component>\r\n  <component name=\"PackageRequirementsSettings\">\r\n    <option name=\"requirementsPath\" value=\"D:\\Works\\Python\\ecosys\\requirements.txt\" />\r\n    <option name=\"modifyBaseFiles\" value=\"true\" />\r\n  </component>\r\n  <component name=\"TestRunnerService\">\r\n    <option name=\"PROJECT_TEST_RUNNER\" value=\"pytest\" />\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/Ushare.iml b/.idea/Ushare.iml
+--- a/.idea/Ushare.iml	(revision 547ac4cce01418c14f341c6f7d9db4b10f8281fa)
++++ b/.idea/Ushare.iml	(date 1645353816115)
+@@ -5,7 +5,7 @@
+       <sourceFolder url="file://$MODULE_DIR$/data" isTestSource="false" />
+       <excludeFolder url="file://$MODULE_DIR$/venv" />
+     </content>
+-    <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
++    <orderEntry type="jdk" jdkName="Python 3.9" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+   <component name="PackageRequirementsSettings">
+Index: config.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># encoding=utf-8\r\nimport tushare as ts\r\nimport MySQLdb\r\nimport pandas as p\r\nfrom sqlalchemy import create_engine\r\nfrom sqlalchemy.orm import sessionmaker\r\n\r\ntushare_token = '1b61e563de958fab5733a11103409224a50673ca4857b20b1669b016'\r\nengine = create_engine('mysql+pymysql://root@127.0.0.1:3306/stock_trade?charset=utf8')\r\nhost = '127.0.0.1'\r\nport = 3306\r\ndb = 'stock_trade'\r\nuser = 'root'\r\npassword = ''\r\nunicode = 'utf8'\r\nNe_path = '//Ne.txt'\r\n\r\n#  邮件名单\r\nemail_list = ['lingssh@126.com', 'tokttt@gmail.com']\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/config.py b/config.py
+--- a/config.py	(revision 547ac4cce01418c14f341c6f7d9db4b10f8281fa)
++++ b/config.py	(date 1645355534530)
+@@ -1,12 +1,12 @@
+ # encoding=utf-8
+ import tushare as ts
+-import MySQLdb
++# import MySQLdb
+ import pandas as p
+ from sqlalchemy import create_engine
+ from sqlalchemy.orm import sessionmaker
+ 
+ tushare_token = '1b61e563de958fab5733a11103409224a50673ca4857b20b1669b016'
+-engine = create_engine('mysql+pymysql://root@127.0.0.1:3306/stock_trade?charset=utf8')
++# engine = create_engine('mysql+pymysql://root@127.0.0.1:3306/stock_trade?charset=utf8')
+ host = '127.0.0.1'
+ port = 3306
+ db = 'stock_trade'
